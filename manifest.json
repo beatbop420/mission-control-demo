@@ -1,7 +1,7 @@
 {
-    "name": "Mission Control (Demo)",
-    "short_name": "MC Demo",
-    "description": "Demo mode — fake data, nothing syncs.",
+    "name": "Demo MC",
+    "short_name": "Demo MC",
+    "description": "Public demo of Mission Control — fake data, nothing syncs, safe to click around.",
     "start_url": "./index.html",
     "display": "standalone",
     "background_color": "#1a1216",
