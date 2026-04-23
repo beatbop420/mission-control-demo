@@ -868,7 +868,7 @@
         var info = DOG_EXPLAINS[tab] || DOG_EXPLAINS.rightnow;
         var textEl = q('.demo-dog-explain-text');
         if (textEl) {
-            textEl.innerHTML = \'<strong>\' + info.title + \':</strong> \' + info.text;
+            textEl.innerHTML = '<strong>' + info.title + ':</strong> ' + info.text;
         }
     };
 
