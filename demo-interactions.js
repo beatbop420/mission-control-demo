@@ -770,16 +770,16 @@
             wand.classList.add('demo-dog-glow');
             wand.style.cursor = 'pointer';
             var wandSayings = [
-                'wave me for wishes ✨',
-                'I smell adventure 🌟',
-                'chaos is coming 🌪️',
-                'let\'s bend reality 🎭',
-                'sprinkle some magic ⭐',
-                'reality check incoming 💫',
-                'plot twist? yes please 🎪',
-                'buckle up buttercup 🌀',
-                'vibe shift activated 🔮',
-                'something wicked this way comes 👻'
+                'once upon a time... ✨',
+                'happily ever after 🦄',
+                'a spell is brewing 🌙',
+                'enchantment abound 🪄',
+                'wishes whispered to stars 💫',
+                'magic stirs in the air ✨',
+                'the tale unfolds 📖',
+                'dreams take flight 🧚',
+                'wonders beyond measure 🌟',
+                'a moment of pure magic ⭐'
             ];
             wand.addEventListener('mouseenter', function () {
                 if (q('.demo-wand-hover-bubble')) return; // Don't create duplicates
