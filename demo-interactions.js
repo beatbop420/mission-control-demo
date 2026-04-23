@@ -919,6 +919,7 @@
         btn.setAttribute('aria-label', 'Load sample brain dump');
 
         btn.addEventListener('click', function () {
+            textarea.value = '';
             textarea.value = DEMO_AST_SCENARIOS[demoScenarioIndex % DEMO_AST_SCENARIOS.length];
             demoScenarioIndex++;
             textarea.dispatchEvent(new Event('input', { bubbles: true }));
