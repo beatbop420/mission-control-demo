@@ -23,9 +23,9 @@
             tab: 'money',
             finance: 'brain',
             target: '#mc-greeting',
-            title: 'Logic Translation',
-            text: 'Turns raw bank data into emotional regulation and clear physical instructions.',
-            extra: 'Logic: Numbers alone cause anxiety. We wrap the data in a "Morning Briefing" from Miss Claudette to provide a supportive, non-judgmental entry point.'
+            title: 'The Morning Briefing',
+            text: 'Instead of a wall of numbers, you get a plain-language summary of where you stand — written like a supportive note, not a bank statement.',
+            extra: 'Logic: Raw numbers trigger shame and avoidance. Miss Claudette reframes the same data as a calm, actionable briefing so the user can actually open the app on a hard day.'
         },
         {
             tab: 'money',
@@ -48,15 +48,15 @@
             finance: 'buckets',
             target: '#fin-panel-buckets',
             title: 'Paycheck Splitting',
-            text: 'Income is split into 4 buckets: Fixed, Safety, Life, and Dopamine.',
-            extra: 'Logic: This enforces a priority sequence. Bills are paid first, fun is funded last. It removes the decision-making stress on payday.'
+            text: 'Income is automatically divided into 4 buckets the moment it lands: Fixed bills, Safety net, Life spending, and Dopamine.',
+            extra: 'Logic: The "Dopamine" bucket is intentional — ADHD brains run on dopamine-driven reward. Budgeting for fun isn\'t a luxury, it\'s maintenance. The priority sequence means decisions are already made before payday hits.'
         },
         {
             tab: 'body',
             target: '.pressure-bar',
             title: 'Atmospheric Flare Detection',
-            text: 'Links barometric pressure shifts to chronic pain and POTS symptoms.',
-            extra: 'Logic: Flare-ups often feel random and scary. By showing the pressure drop, we give the user a reason for their pain, which reduces the emotional toll.'
+            text: 'Pulls live weather data and warns you when a barometric pressure drop is coming — a documented trigger for chronic pain, migraines, and dysautonomia flares.',
+            extra: 'Logic: When your body crashes for "no reason," it\'s demoralizing. Seeing the pressure data gives the user an external explanation — not a character flaw, just physics — which cuts the emotional spiral significantly.'
         },
         {
             tab: 'life',
@@ -67,10 +67,10 @@
         },
         {
             tab: 'assistant',
-            target: '#tab-assistant .ast-capture-input',
+            target: '#tab-assistant',
             title: 'AI Planning Layer',
-            text: 'The AI acts as an external pre-frontal cortex to sort the chaos.',
-            extra: 'Logic: Sorting is a high-energy task. The AI handles the "Categorization" and "Step-Breaking" so the user only has to handle the "Execution."'
+            text: 'Type a messy brain dump — groceries, anxieties, deadlines, anything — and the AI sorts it into a priority-ranked action plan with small, doable steps.',
+            extra: 'Logic: Sorting and prioritizing are high executive-function tasks. The AI handles the "What first?" decision so the user only has to handle the doing. In this demo, the AI runs locally with no API calls or data leaving the device.'
         },
         {
             tab: 'rightnow',
@@ -717,8 +717,8 @@
             text: 'Subtracts every upcoming bill from your bank balance automatically. The number you see is what is actually safe to spend right now.'
         },
         life: {
-            title: 'Data Logging',
-            text: 'A central log for mood, meds, and cycle. Use it to find the link between your environment and your internal capacity over time.'
+            title: 'Daily Life Hub',
+            text: 'Brain dumps, habit tracking, family notes, contacts, and documents — all the external memory your brain is too full to hold on its own.'
         },
         assistant: {
             title: 'The AI Planner',
@@ -801,9 +801,10 @@
             '<div class="demo-tour-step">System Blueprint</div>' +
             '<h3 class="demo-tour-title">Privacy & Architecture</h3>' +
             '<div class="demo-tour-text" style="font-size:11px; line-height:1.4; display:grid; gap:8px;">' +
-                '<p><strong>1. PWA Technology:</strong> This isn\'t just a website. It\'s a Progressive Web App that works offline and installs directly to your home screen.</p>' +
-                '<p><strong>2. Local-First Privacy:</strong> In this demo, 100% of your data stays in your browser\'s LocalStorage. Nothing is sent to a server.</p>' +
-                '<p><strong>3. Neurodivergent-First:</strong> Built with high-legibility fonts (Lexend) and low-friction logic to reduce the executive function cost of management.</p>' +
+                '<p><strong>1. PWA — installs like an app:</strong> No App Store. Works offline. Add to your home screen from the browser and it runs like a native app.</p>' +
+                '<p><strong>2. Your data stays yours:</strong> This demo uses your browser\'s local storage only — nothing leaves the device. The personal version connects to a private Supabase database owned by you, not a third party.</p>' +
+                '<p><strong>3. Neurodivergent-first design:</strong> Lexend font (built for reading proficiency), low-friction flows, and logic that reduces the executive function cost of just opening the app.</p>' +
+                '<p><strong>4. Zero subscription:</strong> No monthly fee, no data mining, no ads. Built by one person, for one person — and open to anyone who wants to use it.</p>' +
             '</div>' +
             '<div class="demo-tour-actions" style="margin-top:14px;">' +
                 '<button class="demo-tour-btn primary" style="width:100%;" onclick="this.closest(\'.demo-crown-modal\').remove()">Understood</button>' +
