@@ -171,38 +171,45 @@
             color: #c9b8d4;
             display: inline-block;
             position: relative;
-            animation: diamondFlash 1.4s ease-in-out infinite;
+            animation: diamondTwinkle 3.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
 
         .body-check .diamond::before,
         .body-check .diamond::after {
             content: '✨';
             position: absolute;
-            font-size: 6px;
+            font-size: 5px;
             color: #c9b8d4;
             pointer-events: none;
         }
 
         .body-check .diamond::before {
-            top: -6px;
-            left: -4px;
-            animation: sparklePoint 0.8s ease-in-out infinite;
+            top: -7px;
+            left: -5px;
+            animation: sparkleFlicker 3.2s steps(4, end) infinite;
         }
 
         .body-check .diamond::after {
-            top: -4px;
-            right: -6px;
-            animation: sparklePoint 0.8s ease-in-out 0.3s infinite;
+            top: -5px;
+            right: -7px;
+            animation: sparkleFlicker 3.2s steps(4, end) 0.8s infinite;
         }
 
-        @keyframes diamondFlash {
-            0%, 100% { opacity: 0.5; text-shadow: 0 0 2px rgba(201, 184, 212, 0.4); }
-            50% { opacity: 1; text-shadow: 0 0 8px rgba(201, 184, 212, 1); }
+        @keyframes diamondTwinkle {
+            0% { opacity: 0.4; text-shadow: 0 0 2px rgba(201, 184, 212, 0.3); }
+            8% { opacity: 0.9; text-shadow: 0 0 6px rgba(201, 184, 212, 0.8); }
+            16% { opacity: 0.5; text-shadow: 0 0 3px rgba(201, 184, 212, 0.4); }
+            24% { opacity: 0.7; text-shadow: 0 0 5px rgba(201, 184, 212, 0.6); }
+            32% { opacity: 0.4; text-shadow: 0 0 2px rgba(201, 184, 212, 0.3); }
+            100% { opacity: 0.4; text-shadow: 0 0 2px rgba(201, 184, 212, 0.3); }
         }
 
-        @keyframes sparklePoint {
-            0%, 100% { opacity: 0; transform: scale(0.3); }
-            50% { opacity: 1; transform: scale(1); }
+        @keyframes sparkleFlicker {
+            0%, 25% { opacity: 0; }
+            26%, 35% { opacity: 1; }
+            36%, 75% { opacity: 0; }
+            76%, 85% { opacity: 1; }
+            86%, 100% { opacity: 0; }
         }
 
         /* ===== STATUS BAR ===== */
