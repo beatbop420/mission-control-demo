@@ -808,16 +808,16 @@
         document.body.appendChild(text);
         
         // Fade in and float
-        text.style.animation = 'fairy-float 6s ease-in-out forwards';
+        text.style.animation = 'fairy-float 5s ease-in-out forwards';
         
-        // Start confetti after 2.5 seconds
+        // Start confetti after 2 seconds
         window.setTimeout(function () {
             if (typeof bippityBoppityBoo === 'function') {
                 bippityBoppityBoo();
             }
             // Fade out the text after confetti starts
-            text.style.animation = 'fairy-fade-out 2.5s ease-out forwards';
-        }, 2500);
+            text.style.animation = 'fairy-fade-out 2s ease-out forwards';
+        }, 2000);
         
         // Remove text after it fades
         window.setTimeout(function () {
