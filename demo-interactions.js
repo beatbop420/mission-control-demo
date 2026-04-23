@@ -781,21 +781,6 @@
                 'wonders beyond measure 🌟',
                 'a moment of pure magic ⭐'
             ];
-            wand.addEventListener('mouseenter', function () {
-                if (q('.demo-wand-hover-bubble')) return; // Don't create duplicates
-                var saying = wandSayings[Math.floor(Math.random() * wandSayings.length)];
-                var bubble = document.createElement('div');
-                bubble.className = 'demo-wand-hover-bubble';
-                bubble.textContent = saying;
-                document.body.appendChild(bubble);
-                var rect = wand.getBoundingClientRect();
-                bubble.style.left = (rect.right - 60) + 'px';
-                bubble.style.top = (rect.top - 50) + 'px';
-            });
-            wand.addEventListener('mouseleave', function () {
-                var bubble = q('.demo-wand-hover-bubble');
-                if (bubble) bubble.remove();
-            });
             wand.onclick = function () {
                 castMagicalIncantation();
             };
@@ -817,21 +802,26 @@
         text.style.position = 'fixed';
         text.style.zIndex = '999999';
         text.style.pointerEvents = 'none';
+        text.style.left = '50%';
+        text.style.top = '30%';
+        text.style.transform = 'translateX(-50%)';
         document.body.appendChild(text);
         
-        // Random starting position
-        var startX = Math.random() * (window.innerWidth - 200);
-        var startY = Math.random() * (window.innerHeight - 100);
-        text.style.left = startX + 'px';
-        text.style.top = startY + 'px';
-        text.style.animation = 'bippity-dance 2.5s ease-out forwards';
+        // Fade in and float
+        text.style.animation = 'fairy-float 4s ease-in-out forwards';
         
-        // After animation, call confetti
+        // Start confetti after 1 second
         window.setTimeout(function () {
-            text.remove();
             if (typeof bippityBoppityBoo === 'function') {
                 bippityBoppityBoo();
             }
+            // Fade out the text after confetti starts
+            text.style.animation = 'fairy-fade-out 1.5s ease-out forwards';
+        }, 1000);
+        
+        // Remove text after it fades
+        window.setTimeout(function () {
+            text.remove();
         }, 2500);
     }
 
