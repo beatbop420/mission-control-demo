@@ -810,6 +810,31 @@
         }
     }
 
+    function castMagicalIncantation() {
+        var text = document.createElement('div');
+        text.className = 'bippity-boppity-text';
+        text.textContent = '✨ Bippity Boppity Boo ✨';
+        text.style.position = 'fixed';
+        text.style.zIndex = '999999';
+        text.style.pointerEvents = 'none';
+        document.body.appendChild(text);
+        
+        // Random starting position
+        var startX = Math.random() * (window.innerWidth - 200);
+        var startY = Math.random() * (window.innerHeight - 100);
+        text.style.left = startX + 'px';
+        text.style.top = startY + 'px';
+        text.style.animation = 'bippity-dance 2.5s ease-out forwards';
+        
+        // After animation, call confetti
+        window.setTimeout(function () {
+            text.remove();
+            if (typeof bippityBoppityBoo === 'function') {
+                bippityBoppityBoo();
+            }
+        }, 2500);
+    }
+
     function showWandMenu() {
         var existing = q('.demo-wand-menu');
         if (existing) { existing.remove(); return; }
