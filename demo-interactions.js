@@ -158,10 +158,11 @@
     }
 
     function clearHighlight() {
-        if (highlightEl) {
-            highlightEl.classList.remove('demo-highlight');
-            highlightEl = null;
-        }
+        // Remove highlight from all highlighted elements
+        qa('.demo-highlight').forEach(function(el) {
+            el.classList.remove('demo-highlight');
+        });
+        highlightEl = null;
     }
 
     function highlight(selector) {
@@ -169,20 +170,28 @@
         var el = q(selector);
         if (!el) return null;
 
-        // For pressure bar, highlight it + the labels below it
+        // For pressure bar, highlight pressure info items above + bar + labels below
         if (selector === '.pressure-bar') {
             var parent = el.parentNode;
             var labels = parent ? q('.pressure-labels', parent) : null;
-            if (labels && parent) {
-                var wrapper = document.createElement('div');
-                wrapper.style.position = 'relative';
-                wrapper.style.display = 'contents';
-                highlightEl = wrapper;
-            } else {
-                highlightEl = el;
-            }
+
+            // Find pressure-related items above the bar (Pressure, 6hr Change, Trend)
+            var items = parent ? qa('.item', parent) : [];
+            var pressureItems = items.filter(function(item) {
+                var label = q('.label', item);
+                return label && (label.textContent.includes('Pressure') ||
+                                label.textContent.includes('Change') ||
+                                label.textContent.includes('Trend'));
+            });
+
+            // Highlight all pressure items, bar, and labels
+            pressureItems.forEach(function(item) {
+                item.classList.add('demo-highlight');
+            });
             el.classList.add('demo-highlight');
             if (labels) labels.classList.add('demo-highlight');
+
+            highlightEl = el;
         } else {
             highlightEl = el;
             el.classList.add('demo-highlight');
