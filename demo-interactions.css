@@ -224,11 +224,23 @@
 .demo-highlight {
     position: relative;
     z-index: 999998 !important;
-    outline: 3px solid #e8b84b !important;
-    outline-offset: 8px;
-    box-shadow: 0 0 30px #e8b84b, 0 0 60px rgba(212, 132, 154, 0.4);
+    outline: 2px solid #4fd1c5 !important;
+    outline-offset: 6px;
+    box-shadow: 0 0 20px rgba(79, 209, 197, 0.4);
     background: #1a1216 !important;
-    animation: demo-dog-pulse 1.5s ease-in-out infinite;
+    animation: demo-tour-glow 3s ease-in-out infinite;
+}
+
+/* Subtle, slow breathing glow for the tour spotlight */
+@keyframes demo-tour-glow {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(79, 209, 197, 0.2);
+        outline-color: rgba(79, 209, 197, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(79, 209, 197, 0.5);
+        outline-color: rgba(79, 209, 197, 1);
+    }
 }
 
 .demo-pulse {
