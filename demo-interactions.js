@@ -212,6 +212,23 @@
         }, 80);
     }
 
+    function avoidOverlap(card, target) {
+        // Don't reposition if user has manually dragged the card
+        if (card.style.left && card.style.left !== 'auto') return;
+        var tRect = target.getBoundingClientRect();
+        var cRect = card.getBoundingClientRect();
+        var overlaps = tRect.right > cRect.left && tRect.left < cRect.right &&
+                       tRect.bottom > cRect.top && tRect.top < cRect.bottom;
+        var inBottomHalf = (tRect.top + tRect.height / 2) > (window.innerHeight / 2);
+        if (overlaps || inBottomHalf) {
+            card.style.top = '80px';
+            card.style.bottom = 'auto';
+        } else {
+            card.style.top = 'auto';
+            card.style.bottom = '24px';
+        }
+    }
+
     function showTourStep(index) {
         var card = q('[data-demo-tour-card]');
         var backdrop = q('.demo-tour-backdrop');
@@ -220,6 +237,7 @@
         // Move card to body if it's currently inside a container (like the console)
         if (card.parentNode !== document.body) {
             document.body.appendChild(card);
+            attachDrag(card); // make it draggable once it's on body
         }
 
         if (index < 0 || index >= tourSteps.length) {
@@ -278,25 +296,12 @@
 
         window.setTimeout(function () {
             var target = highlight(step.target);
-            
-            // DYNAMIC POSITIONING:
-            // If the target is in the bottom half of the screen, move the tour card to the top.
-            // If the target is in the top half, move the tour card to the bottom.
             if (target) {
-                var rect = target.getBoundingClientRect();
-                var screenCenter = window.innerHeight / 2;
-                
-                if (rect.top + rect.height / 2 > screenCenter) {
-                    // Target is in bottom half -> move card to top
-                    card.style.bottom = 'auto';
-                    card.style.top = '24px';
-                } else {
-                    // Target is in top half -> move card to bottom
-                    card.style.top = 'auto';
-                    card.style.bottom = '24px';
-                }
+                avoidOverlap(card, target);
+                // Re-check after smooth scroll finishes
+                window.setTimeout(function () { avoidOverlap(card, target); }, 500);
             }
-        }, 180);
+        }, 150);
     }
 
     function ensureFinanceState() {
@@ -519,56 +524,56 @@
         }
     }
 
-    function makeDraggable(wrap) {
-        var header = q('.demo-console-header', wrap);
-        if (!header) return;
-
+    function attachDrag(el, handle) {
+        handle = handle || el;
         var dragging = false;
         var startX, startY, startLeft, startTop;
 
         function toAbsolute() {
-            var rect = wrap.getBoundingClientRect();
-            wrap.style.right = 'auto';
-            wrap.style.bottom = 'auto';
-            wrap.style.left = rect.left + 'px';
-            wrap.style.top = rect.top + 'px';
+            var rect = el.getBoundingClientRect();
+            el.style.right = 'auto';
+            el.style.bottom = 'auto';
+            el.style.transform = 'none';
+            el.style.left = rect.left + 'px';
+            el.style.top = rect.top + 'px';
         }
 
         function onStart(clientX, clientY) {
-            if (!wrap.style.left || wrap.style.left === 'auto') toAbsolute();
+            if (!el.style.left || el.style.left === 'auto') toAbsolute();
             dragging = true;
             startX = clientX;
             startY = clientY;
-            startLeft = parseFloat(wrap.style.left) || 0;
-            startTop = parseFloat(wrap.style.top) || 0;
+            startLeft = parseFloat(el.style.left) || 0;
+            startTop = parseFloat(el.style.top) || 0;
             document.body.style.userSelect = 'none';
-            header.style.cursor = 'grabbing';
+            handle.style.cursor = 'grabbing';
         }
 
         function onMove(clientX, clientY) {
             if (!dragging) return;
-            var newLeft = Math.max(0, Math.min(window.innerWidth - wrap.offsetWidth, startLeft + (clientX - startX)));
+            var newLeft = Math.max(0, Math.min(window.innerWidth - el.offsetWidth, startLeft + (clientX - startX)));
             var newTop = Math.max(0, Math.min(window.innerHeight - 50, startTop + (clientY - startY)));
-            wrap.style.left = newLeft + 'px';
-            wrap.style.top = newTop + 'px';
+            el.style.left = newLeft + 'px';
+            el.style.top = newTop + 'px';
         }
 
         function onEnd() {
             dragging = false;
             document.body.style.userSelect = '';
-            header.style.cursor = 'grab';
+            handle.style.cursor = 'grab';
         }
 
-        header.addEventListener('mousedown', function (e) {
-            if (e.target.closest('button')) return;
+        handle.style.cursor = 'grab';
+
+        handle.addEventListener('mousedown', function (e) {
+            if (e.target.closest('button, input, textarea, a, select')) return;
             e.preventDefault();
             onStart(e.clientX, e.clientY);
         });
         document.addEventListener('mousemove', function (e) { onMove(e.clientX, e.clientY); });
         document.addEventListener('mouseup', onEnd);
-
-        header.addEventListener('touchstart', function (e) {
-            if (e.target.closest('button')) return;
+        handle.addEventListener('touchstart', function (e) {
+            if (e.target.closest('button, input, textarea, a, select')) return;
             var t = e.touches[0];
             onStart(t.clientX, t.clientY);
         }, { passive: true });
@@ -578,6 +583,11 @@
             onMove(t.clientX, t.clientY);
         }, { passive: false });
         document.addEventListener('touchend', onEnd);
+    }
+
+    function makeDraggable(wrap) {
+        var header = q('.demo-console-header', wrap);
+        if (header) attachDrag(wrap, header);
     }
 
     function mountConsole() {
@@ -791,44 +801,44 @@
                 actionButton('seed-samples', 'Cast: Samples', 'Populate with data') +
             '</div>';
         document.body.appendChild(menu);
-        
         q('.demo-dog-explain-close', menu).addEventListener('click', function () { menu.remove(); });
-        
-        // Sparkle when opened
+        attachDrag(menu);
         if (typeof bippityBoppityBoo === 'function') bippityBoppityBoo();
     }
 
     function showCrownSecurity() {
         var existing = q('.demo-crown-modal');
-        if (existing) { existing.remove(); return; }
+        if (existing) { existing.remove(); q('.demo-crown-backdrop') && q('.demo-crown-backdrop').remove(); return; }
 
         var modal = document.createElement('div');
-        modal.className = 'demo-tour-card active demo-crown-modal'; // Reusing tour card style
-        modal.style.top = '50%';
+        modal.className = 'demo-tour-card active demo-crown-modal';
+        modal.style.top = '80px';
         modal.style.bottom = 'auto';
+        modal.style.maxHeight = 'calc(100vh - 120px)';
+        modal.style.display = 'flex';
+        modal.style.flexDirection = 'column';
         modal.innerHTML =
             '<div class="demo-tour-step">System Blueprint</div>' +
-            '<h3 class="demo-tour-title">Privacy & Architecture</h3>' +
-            '<div class="demo-tour-text" style="font-size:11px; line-height:1.4; display:grid; gap:8px;">' +
-                '<p><strong>1. PWA — installs like an app:</strong> No App Store. Works offline. Add to your home screen from the browser and it runs like a native app.</p>' +
-                '<p><strong>2. Your data stays yours:</strong> This demo uses your browser\'s local storage only — nothing leaves the device. The personal version connects to a private Supabase database owned by you, not a third party.</p>' +
-                '<p><strong>3. Neurodivergent-first design:</strong> Lexend font (built for reading proficiency), low-friction flows, and logic that reduces the executive function cost of just opening the app.</p>' +
-                '<p><strong>4. Zero subscription:</strong> No monthly fee, no data mining, no ads. Built by one person, for one person — and open to anyone who wants to use it.</p>' +
+            '<h3 class="demo-tour-title" style="margin-bottom:10px;">Privacy & Architecture</h3>' +
+            '<div style="overflow-y:auto; flex:1; font-size:11px; line-height:1.5; display:grid; gap:10px; color:#d7cbc8; padding-right:4px;">' +
+                '<p><strong style="color:#fff;">1. PWA — installs like an app:</strong> No App Store. Works offline. Add to your home screen from the browser and it runs like a native app.</p>' +
+                '<p><strong style="color:#fff;">2. Your data stays yours:</strong> This demo uses your browser\'s local storage only — nothing leaves your device. The personal version connects to a private database owned by you, not a third party.</p>' +
+                '<p><strong style="color:#fff;">3. Neurodivergent-first design:</strong> Lexend font (built for reading proficiency), low-friction flows, and logic that reduces the executive function cost of just opening the app.</p>' +
             '</div>' +
-            '<div class="demo-tour-actions" style="margin-top:14px;">' +
-                '<button class="demo-tour-btn primary" style="width:100%;" onclick="this.closest(\'.demo-crown-modal\').remove()">Understood</button>' +
+            '<div class="demo-tour-actions" style="margin-top:12px; flex-shrink:0;">' +
+                '<button class="demo-tour-btn primary" style="width:100%;">Got it</button>' +
             '</div>';
         document.body.appendChild(modal);
 
-        // Backdrop
         var backdrop = document.createElement('div');
-        backdrop.className = 'demo-tour-backdrop active';
+        backdrop.className = 'demo-tour-backdrop demo-crown-backdrop active';
         document.body.appendChild(backdrop);
-        
-        q('.demo-tour-btn', modal).onclick = function() {
-            modal.remove();
-            backdrop.remove();
-        };
+
+        function close() { modal.remove(); backdrop.remove(); }
+        q('.demo-tour-btn', modal).addEventListener('click', close);
+        backdrop.addEventListener('click', close);
+
+        attachDrag(modal);
     }
 
     function showDogExplain() {
@@ -850,8 +860,8 @@
                 '<button class="demo-tour-btn" style="width:100%;" onclick="showDogTabTip()">Explain This Tab</button>' +
             '</div>';
         document.body.appendChild(card);
+        attachDrag(card);
 
-        // ... existing close logic ...
         q('.demo-dog-explain-close', card).addEventListener('click', function () {
             card.remove();
         });
@@ -983,19 +993,19 @@
         addInfoButtons();
         maybeShowInstallHint();
 
-        // Watch for the assistant tab textarea to appear (it renders on first tab click)
-        var astTab = document.getElementById('tab-assistant');
-        if (astTab) {
-            var astObserver = new MutationObserver(function () {
-                injectAstStar();
-            });
-            astObserver.observe(astTab, { childList: true, subtree: true });
-        }
+        // Inject star whenever the assistant textarea appears (rendered on first tab visit)
         var astTabBtn = q('#ast-tab-btn');
         if (astTabBtn) {
             astTabBtn.addEventListener('click', function () {
-                window.setTimeout(injectAstStar, 300);
+                window.setTimeout(injectAstStar, 350);
             });
         }
+        // Polling fallback — catches it if already rendered or observer misses it
+        var starPoll = setInterval(function () {
+            if (q('.ast-capture-input')) {
+                injectAstStar();
+                if (q('.demo-ast-star')) clearInterval(starPoll);
+            }
+        }, 500);
     });
 })();
