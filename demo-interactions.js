@@ -536,19 +536,6 @@
         setTimeout(function() { if (toast.parentNode) toast.remove(); }, 2400);
     }
 
-    function winTheDay() {
-        var greeting = q('#mc-greeting-text');
-        if (greeting) {
-            greeting.textContent = 'Win logged. Mission Control sees the effort, not just the output.';
-        }
-        sparkleFrom(q('.header h1') || document.body, 42);
-
-        // Show what a task completion actually feels like — sparkles rain down
-        if (typeof celebrateTaskCompletion === 'function') {
-            celebrateTaskCompletion();
-        }
-    }
-
     function seedSamples() {
         if (typeof seedSampleData === 'function') {
             seedSampleData();
@@ -645,7 +632,6 @@
                         actionButton('payday', 'I just got paid', 'Fill buckets and update money') +
                         actionButton('chaos', 'Chaos mode', 'Urgent bill plus low energy') +
                         actionButton('assistant-ai', 'Demo AI sort', 'Run the local Assistant brain') +
-                        actionButton('win-day', 'Win the day', 'Celebrate a task win — sparkles & feedback') +
                     '</div>' +
                     '<div class="demo-tour-card" data-demo-tour-card>' +
                         '<div class="demo-tour-step" data-demo-tour-step></div>' +
@@ -719,9 +705,6 @@
                 break;
             case 'assistant-ai':
                 demoAssistantAi();
-                break;
-            case 'win-day':
-                winTheDay();
                 break;
         }
     }
@@ -868,7 +851,6 @@
             '<div class="demo-action-grid" style="margin-top:12px;">' +
                 actionButton('payday', 'Cast: Payday', 'Fill your buckets') +
                 actionButton('chaos', 'Cast: Chaos', 'Surprise bill & Low energy') +
-                actionButton('win-day', 'Cast: Dopamine', 'See what task completion feels like') +
                 actionButton('seed-samples', 'Cast: Samples', 'Populate with data') +
             '</div>';
         document.body.appendChild(menu);
