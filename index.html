@@ -396,6 +396,7 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+            min-width: 0;
         }
 
         .work-right {
@@ -507,10 +508,14 @@
 
         /* ===== WORK CHECKLIST ===== */
         .work-checklist-section {
-            margin: 16px 0;
+            margin: 12px 0 0 0;
             padding: 12px;
             background: rgba(201, 184, 212, 0.05);
             border-radius: 8px;
+            flex: 0 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            max-height: 200px;
         }
 
         .work-checklist-header {
@@ -575,6 +580,8 @@
             flex: 1;
             cursor: pointer;
             transition: all 0.2s ease;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
 
         .work-checklist-item .delete-btn {
