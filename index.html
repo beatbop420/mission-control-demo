@@ -1453,7 +1453,7 @@
 
         /* ===== SECURITY HEALTH BADGE (Step 5) ===== */
         #security-health-badge {
-            display: inline-block;
+            display: none !important;
             width: 8px;
             height: 8px;
             border-radius: 50%;
@@ -2144,7 +2144,7 @@
     function fix(){
         var h=b.offsetHeight;
         if(!h) return; // not rendered yet, retry will catch it
-        document.body.style.paddingTop=h+'px';
+        document.body.style.paddingTop=(h+10)+'px'; // +10 for crown translateY offset
         var dog=document.querySelector('.corner-dog');
         var wand=document.querySelector('.magic-wand');
         if(dog) dog.style.top=(h+4)+'px';
