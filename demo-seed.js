@@ -52,6 +52,23 @@
         bank_last_fetch_iso: nowIso,
         bank_last_fetch_label: 'just now (demo)',
 
+        // === BODY ===
+        body_forecast: {
+            temp: 68,
+            tempHigh: 74,
+            tempLow: 62,
+            pressure: 30.12,
+            pressureTrend: 'rising',
+            humidity: 58,
+            windSpeed: 12,
+            weatherCondition: 'Partly Cloudy',
+            weatherIcon: '02d',
+            flareRisk: 'low',
+            symptomForecast: 'Good day ahead',
+            nextPressureDrop: isoDate(3),
+            updateTime: nowIso
+        },
+
         // === LIFE ===
         cycle_entries: [],
         kid_logs: [],
@@ -198,6 +215,21 @@ window.seedSampleData = function() {
         manual_pending: 0,
         sinking_funds: [],
         kid_logs: [],
+        body_forecast: {
+            temp: 68,
+            tempHigh: 74,
+            tempLow: 62,
+            pressure: 30.12,
+            pressureTrend: 'rising',
+            humidity: 58,
+            windSpeed: 12,
+            weatherCondition: 'Partly Cloudy',
+            weatherIcon: '02d',
+            flareRisk: 'low',
+            symptomForecast: 'Good day ahead',
+            nextPressureDrop: isoDate(3),
+            updateTime: nowIso
+        },
         textareas: { brain_dump: 'I need to call the dentist, finish that work report, and figure out why the car is making that noise. Also groceries before Thursday.' }
     };
 
