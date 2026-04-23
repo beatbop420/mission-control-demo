@@ -1046,7 +1046,7 @@
         var starPoll = setInterval(function () {
             if (q('.ast-capture-input')) {
                 injectAstStar();
-                if (q('.demo-ast-star')) clearInterval(starPoll);
+                // if (q('.demo-ast-star')) clearInterval(starPoll);
             }
         }, 500);
     });
