@@ -3,6 +3,15 @@
 
     var highlightEl = null;
     var tourIndex = -1;
+    var demoScenarioIndex = 0;
+
+    var DEMO_AST_SCENARIOS = [
+        "okay so i still haven't called the dentist and it has been literally three months. my tooth hurts on the left side and i keep thinking i'll call tomorrow. i also think i have a doctor appointment i need to reschedule but i can't find the voicemail. everything health-related i just keep ignoring and i feel bad about it",
+        "the laundry pile has become its own ecosystem at this point. there are dishes in the sink i've been looking at for four days. the kitchen counter has like six different piles on it and i genuinely do not know what is in them. i walk past it all and feel like a failure every single time but i still don't do anything",
+        "i need to pay the phone bill and i'm pretty sure the internet is overdue too. i've been getting emails from my bank and i am too scared to open them. i know i need to check my account but what if it's worse than i think. the credit card probably has late fees by now and i just can't make myself look",
+        "i have at least seven emails i've been avoiding for almost two weeks. one of them is from my boss and i feel sick every time i see it in my inbox. i also have to write a report by friday and i keep opening the document and staring at it and closing it. i feel like everyone is just waiting on me and i'm frozen",
+        "everything feels behind and urgent and impossible at the same time. i sat down to do things an hour ago and now it's an hour later and i've done nothing. i can't even make a list because i don't know where to start and the list itself feels like too much. my brain is just static and i feel paralyzed"
+    ];
 
     var tourSteps = [
         {
@@ -69,8 +78,8 @@
             tab: 'assistant',
             target: '#tab-assistant',
             title: 'AI Planning Layer',
-            text: 'Type a messy brain dump — groceries, anxieties, deadlines, anything — and the AI sorts it into a priority-ranked action plan with small, doable steps.',
-            extra: 'Logic: Sorting and prioritizing are high executive-function tasks. The AI handles the "What first?" decision so the user only has to handle the doing. In this demo, the AI runs locally with no API calls or data leaving the device.'
+            text: 'In the real app, you type a messy brain dump and a live AI model sorts it into a priority-ranked action plan. Tap the ✨ button to see a realistic example of what the output looks like.',
+            extra: 'Demo vs. Real: The live version calls an actual AI model. This demo uses pre-written responses matched to common scenarios — the format and structure are identical to what the real app produces.'
         },
         {
             tab: 'rightnow',
@@ -877,6 +886,43 @@
         }
     };
 
+    function injectAstStar() {
+        if (q('.demo-ast-star')) return;
+        var textarea = q('.ast-capture-input');
+        if (!textarea) return;
+
+        // Replace the misleading "sent to planner service" note
+        var note = q('.ast-capture-note');
+        if (note) note.textContent = 'Demo mode: tap ✨ to load a sample brain dump. In the real app, your text goes to a live AI model.';
+
+        // Wrap textarea so we can position the star inside it
+        var wrapper = document.createElement('div');
+        wrapper.style.cssText = 'position:relative; display:block;';
+        textarea.parentNode.insertBefore(wrapper, textarea);
+        wrapper.appendChild(textarea);
+
+        var btn = document.createElement('button');
+        btn.className = 'demo-ast-star';
+        btn.type = 'button';
+        btn.title = 'Load a sample brain dump — tap again for a different one';
+        btn.textContent = '✨';
+        btn.setAttribute('aria-label', 'Load sample brain dump');
+
+        btn.addEventListener('click', function () {
+            textarea.value = DEMO_AST_SCENARIOS[demoScenarioIndex % DEMO_AST_SCENARIOS.length];
+            demoScenarioIndex++;
+            textarea.dispatchEvent(new Event('input', { bubbles: true }));
+            textarea.focus();
+            pulse(btn);
+            window.setTimeout(function () {
+                var submitBtn = q('[data-ast-action="analyze-capture"]');
+                if (submitBtn && !submitBtn.disabled) submitBtn.click();
+            }, 700);
+        });
+
+        wrapper.appendChild(btn);
+    }
+
     function addInfoButtons() {
         addInfoButton('#rn-spendable', 'Bank balance is not the same as spendable. Mission Control subtracts money that is already spoken for so the user sees the safer number.');
         addInfoButton('#fin-spendable-detail', 'This combines the Life and Dopamine buckets after bills and protected money are accounted for.');
@@ -936,5 +982,20 @@
         enhanceDog();
         addInfoButtons();
         maybeShowInstallHint();
+
+        // Watch for the assistant tab textarea to appear (it renders on first tab click)
+        var astTab = document.getElementById('tab-assistant');
+        if (astTab) {
+            var astObserver = new MutationObserver(function () {
+                injectAstStar();
+            });
+            astObserver.observe(astTab, { childList: true, subtree: true });
+        }
+        var astTabBtn = q('#ast-tab-btn');
+        if (astTabBtn) {
+            astTabBtn.addEventListener('click', function () {
+                window.setTimeout(injectAstStar, 300);
+            });
+        }
     });
 })();

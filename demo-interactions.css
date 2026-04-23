@@ -490,10 +490,36 @@
     }
 }
 
+/* Glowing star button inside assistant textarea */
+.demo-ast-star {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(232, 184, 75, 0.55);
+    border-radius: 999px;
+    background: rgba(26, 18, 22, 0.92);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    animation: demo-dog-pulse 2s ease-in-out infinite;
+    z-index: 10;
+    transition: background 0.16s ease, border-color 0.16s ease;
+}
+
+.demo-ast-star:hover {
+    background: rgba(232, 184, 75, 0.15);
+    border-color: rgba(232, 184, 75, 0.9);
+}
+
 @media (prefers-reduced-motion: reduce) {
     .demo-action,
     .demo-pulse,
-    .demo-dog-flip {
+    .demo-dog-flip,
+    .demo-ast-star {
         animation: none;
         transition: none;
     }
