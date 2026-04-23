@@ -2,6 +2,15 @@
 // This replaces the real Supabase client with a fake one that silently no-ops everything.
 // The app runs like normal but nothing actually touches the cloud.
 
+// These globals MUST be defined — other parts of the app reference them directly
+// (e.g. SecurityPod.install({ supabaseUrl: SUPABASE_URL, ... })). If they're
+// undefined, the app throws ReferenceError during init and nothing else runs
+// (including weather).
+window.SUPABASE_URL = 'https://demo.invalid';
+window.SUPABASE_ANON_KEY = 'demo-key-not-real';
+var SUPABASE_URL = window.SUPABASE_URL;
+var SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY;
+
 (function () {
     const DEMO_USER = {
         id: '00000000-0000-0000-0000-000000000000',
