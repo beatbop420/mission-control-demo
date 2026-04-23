@@ -14,6 +14,8 @@
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
 
+    <!-- DEMO MODE — isolate localStorage under 'demo_' prefix so real app is safe -->
+    <script src="demo-isolate.js"></script>
     <!-- DEMO MODE — seed fake data BEFORE anything else reads localStorage -->
     <script src="demo-seed.js"></script>
     <!-- DEMO MODE — Supabase stub (replaces real client with silent no-op) -->
