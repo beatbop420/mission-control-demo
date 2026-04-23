@@ -797,7 +797,7 @@
                 if (bubble) bubble.remove();
             });
             wand.onclick = function () {
-                if (typeof bippityBoppityBoo === 'function') bippityBoppityBoo();
+                castMagicalIncantation();
             };
         }
         
