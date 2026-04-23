@@ -645,7 +645,7 @@
                         actionButton('payday', 'I just got paid', 'Fill buckets and update money') +
                         actionButton('chaos', 'Chaos mode', 'Urgent bill plus low energy') +
                         actionButton('assistant-ai', 'Demo AI sort', 'Run the local Assistant brain') +
-                        actionButton('win-day', 'Win the day', 'Trigger a reward moment') +
+                        actionButton('win-day', 'Win the day', 'Celebrate a task win — sparkles & feedback') +
                     '</div>' +
                     '<div class="demo-tour-card" data-demo-tour-card>' +
                         '<div class="demo-tour-step" data-demo-tour-step></div>' +
@@ -868,7 +868,7 @@
             '<div class="demo-action-grid" style="margin-top:12px;">' +
                 actionButton('payday', 'Cast: Payday', 'Fill your buckets') +
                 actionButton('chaos', 'Cast: Chaos', 'Surprise bill & Low energy') +
-                actionButton('win-day', 'Cast: Dopamine', 'Trigger a win') +
+                actionButton('win-day', 'Cast: Dopamine', 'See what task completion feels like') +
                 actionButton('seed-samples', 'Cast: Samples', 'Populate with data') +
             '</div>';
         document.body.appendChild(menu);
