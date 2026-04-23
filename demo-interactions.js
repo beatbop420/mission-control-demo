@@ -168,8 +168,26 @@
         clearHighlight();
         var el = q(selector);
         if (!el) return null;
-        highlightEl = el;
-        el.classList.add('demo-highlight');
+
+        // For pressure bar, highlight it + the labels below it
+        if (selector === '.pressure-bar') {
+            var parent = el.parentNode;
+            var labels = parent ? q('.pressure-labels', parent) : null;
+            if (labels && parent) {
+                var wrapper = document.createElement('div');
+                wrapper.style.position = 'relative';
+                wrapper.style.display = 'contents';
+                highlightEl = wrapper;
+            } else {
+                highlightEl = el;
+            }
+            el.classList.add('demo-highlight');
+            if (labels) labels.classList.add('demo-highlight');
+        } else {
+            highlightEl = el;
+            el.classList.add('demo-highlight');
+        }
+
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return el;
     }
@@ -214,7 +232,7 @@
 
     function avoidOverlap(card, target) {
         // Don't reposition if user has manually dragged the card
-        if (card.style.left && card.style.left !== 'auto') return;
+        if (card.getAttribute('data-user-positioned') === 'true') return;
         var tRect = target.getBoundingClientRect();
         var cRect = card.getBoundingClientRect();
         var overlaps = tRect.right > cRect.left && tRect.left < cRect.right &&
@@ -547,6 +565,7 @@
             startTop = parseFloat(el.style.top) || 0;
             document.body.style.userSelect = 'none';
             handle.style.cursor = 'grabbing';
+            el.setAttribute('data-user-positioned', 'true');
         }
 
         function onMove(clientX, clientY) {
