@@ -171,45 +171,53 @@
             color: #c9b8d4;
             display: inline-block;
             position: relative;
-            animation: diamondTwinkle 3.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        .body-check .diamond::before,
-        .body-check .diamond::after {
-            content: '✨';
-            position: absolute;
-            font-size: 5px;
-            color: #c9b8d4;
-            pointer-events: none;
+            text-shadow: 0 0 4px rgba(201, 184, 212, 0.4);
         }
 
         .body-check .diamond::before {
-            top: -7px;
-            left: -5px;
-            animation: sparkleFlicker 3s ease-in-out infinite;
+            content: '✨ ✨';
+            position: absolute;
+            top: -8px;
+            left: -10px;
+            font-size: 4px;
+            color: #c9b8d4;
+            pointer-events: none;
+            letter-spacing: 2px;
+            animation: sparkleBurst1 3.2s ease-in-out infinite;
         }
 
         .body-check .diamond::after {
-            top: -5px;
-            right: -7px;
-            animation: sparkleFlicker 3s ease-in-out 0.7s infinite;
+            content: '✨ ✨';
+            position: absolute;
+            top: 2px;
+            right: -12px;
+            font-size: 4px;
+            color: #c9b8d4;
+            pointer-events: none;
+            letter-spacing: 2px;
+            animation: sparkleBurst2 3.2s ease-in-out 0.3s infinite;
         }
 
-        @keyframes diamondTwinkle {
-            0% { opacity: 0.3; text-shadow: 0 0 2px rgba(201, 184, 212, 0.2); }
-            5% { opacity: 1; text-shadow: 0 0 10px rgba(201, 184, 212, 1); }
-            10% { opacity: 0.3; text-shadow: 0 0 2px rgba(201, 184, 212, 0.2); }
-            15% { opacity: 1; text-shadow: 0 0 10px rgba(201, 184, 212, 1); }
-            20% { opacity: 0.3; text-shadow: 0 0 2px rgba(201, 184, 212, 0.2); }
-            100% { opacity: 0.3; text-shadow: 0 0 2px rgba(201, 184, 212, 0.2); }
+        @keyframes sparkleBurst1 {
+            0% { opacity: 0; }
+            6% { opacity: 1; }
+            12% { opacity: 0; }
+            18% { opacity: 1; }
+            24% { opacity: 0; }
+            30% { opacity: 1; }
+            36% { opacity: 0; }
+            100% { opacity: 0; }
         }
 
-        @keyframes sparkleFlicker {
-            0%, 4% { opacity: 0; }
-            5%, 9% { opacity: 1; }
-            10%, 14% { opacity: 0; }
-            15%, 19% { opacity: 1; }
-            20%, 100% { opacity: 0; }
+        @keyframes sparkleBurst2 {
+            0% { opacity: 0; }
+            8% { opacity: 1; }
+            14% { opacity: 0; }
+            20% { opacity: 1; }
+            26% { opacity: 0; }
+            32% { opacity: 1; }
+            38% { opacity: 0; }
+            100% { opacity: 0; }
         }
 
         /* ===== STATUS BAR ===== */
