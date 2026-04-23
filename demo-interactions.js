@@ -912,7 +912,14 @@
         "the anxiety is real. so are you. one doesn't cancel out the other",
         "you're allowed to exist without constantly proving your worth",
         "overwhelm isn't a personality flaw. it's feedback. not judgment",
-        "the wall of awful is real. you're still moving through it anyway"
+        "the wall of awful is real. you're still moving through it anyway",
+        "if you didn't procrastinate, would you even be you? rhetorical question btw",
+        "your to-do list is longer than your attention span. congratulations, you're normal",
+        "you have 47 browser tabs open. that's not chaos, that's potential energy",
+        "you can't remember where you put your keys but you can hyperfocus on weird facts for 3 hours. this is balanced",
+        "your brain: a cutting-edge operating system with critical bugs that make it weirdly powerful",
+        "executive dysfunction isn't laziness, it's your brain taking its own path to the destination",
+        "parallel processing means you thought about 6 things at once and completed zero. still counts as a workout"
     ];
 
     function showDogTreat() {
