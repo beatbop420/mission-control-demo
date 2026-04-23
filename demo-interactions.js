@@ -986,11 +986,48 @@
         });
     }
 
+    function enhanceSecurityBadge() {
+        var badge = document.getElementById('security-health-badge');
+        if (!badge) return;
+        // Force a neutral demo state — remove live-app error styling
+        badge.className = '';
+        badge.style.background = '#6b5660';
+        badge.style.animation = 'none';
+        badge.style.cursor = 'pointer';
+        badge.title = 'What is this dot?';
+        badge.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var existing = q('.demo-badge-bubble');
+            if (existing) { existing.remove(); return; }
+            var bubble = document.createElement('div');
+            bubble.className = 'demo-info-bubble demo-badge-bubble';
+            bubble.style.cssText = 'max-width:260px; line-height:1.55; font-size:12px;';
+            bubble.innerHTML =
+                '<strong style="display:block; color:#fff; margin-bottom:6px;">Security Health Indicator</strong>' +
+                'In the live version, this dot tells you the health of your data sync in real time:<br><br>' +
+                '<span style="color:#6bbf7b;">&#9679; Green</span> — data is syncing cleanly with your private database<br>' +
+                '<span style="color:#e8b84b;">&#9679; Yellow</span> — data is getting stale, sync is slow<br>' +
+                '<span style="color:#d4849a;">&#9679; Red</span> — connection lost or auth error<br><br>' +
+                'In this demo there\'s no live sync, so it sits quiet.';
+            document.body.appendChild(bubble);
+            var rect = badge.getBoundingClientRect();
+            bubble.style.left = Math.min(window.innerWidth - 280, Math.max(8, rect.left - 200)) + 'px';
+            bubble.style.top = (rect.bottom + 8) + 'px';
+            setTimeout(function () {
+                document.addEventListener('click', function dismiss() {
+                    bubble.remove();
+                    document.removeEventListener('click', dismiss);
+                });
+            }, 50);
+        });
+    }
+
     onReady(function () {
         mountConsole();
         enhanceBodyCheck();
         enhanceDog();
         addInfoButtons();
+        enhanceSecurityBadge();
         maybeShowInstallHint();
 
         // Inject star whenever the assistant textarea appears (rendered on first tab visit)
