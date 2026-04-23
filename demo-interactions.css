@@ -272,15 +272,28 @@
     animation: demo-dog-flip 0.72s ease;
 }
 
-/* Slow lavender glow on the dog — signals it's tappable */
+/* Glow pulse — signals the dog, wand, and crown are all tappable */
 @keyframes demo-dog-pulse {
-    0%, 100% { text-shadow: 0 0 4px rgba(201, 184, 212, 0.15); }
-    50% { text-shadow: 0 0 16px rgba(201, 184, 212, 0.85), 0 0 5px rgba(201, 184, 212, 0.5); }
+    0%, 100% {
+        text-shadow: 0 0 6px rgba(232, 184, 75, 0.3);
+        filter: drop-shadow(0 0 2px rgba(232, 184, 75, 0.2));
+    }
+    50% {
+        text-shadow: 0 0 18px rgba(232, 184, 75, 1), 0 0 8px rgba(212, 132, 154, 0.9);
+        filter: drop-shadow(0 0 8px rgba(232, 184, 75, 0.9));
+    }
 }
 
 .corner-dog.demo-dog-glow {
     cursor: pointer;
-    animation: dog-bounce 3s ease-in-out infinite, demo-dog-pulse 2.8s ease-in-out infinite;
+    animation: dog-bounce 3s ease-in-out infinite, demo-dog-pulse 1.8s ease-in-out infinite;
+}
+
+/* Wand and crown get the same glow but no bounce (they don't have that animation) */
+.magic-wand.demo-dog-glow,
+.header-crown.demo-dog-glow {
+    cursor: pointer;
+    animation: demo-dog-pulse 1.8s ease-in-out infinite;
 }
 
 /* Tab explanation card that appears near the dog */

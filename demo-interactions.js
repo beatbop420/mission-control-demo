@@ -748,9 +748,11 @@
         // Also enhance Wand and Crown
         var wand = q('.magic-wand');
         if (wand) {
-            wand.classList.add('demo-dog-glow'); // Reusing the glow class
-            wand.title = 'Magic Wand: Cast demo scenarios';
-            wand.onclick = showWandMenu; // Override old sparkle-only
+            wand.classList.add('demo-dog-glow');
+            wand.title = 'Make it rain! ✨';
+            wand.onclick = function () {
+                if (typeof bippityBoppityBoo === 'function') bippityBoppityBoo();
+            };
         }
         
         var crown = q('.header-crown');
@@ -862,6 +864,8 @@
             window.setTimeout(function () { dog.classList.remove('demo-dog-flip'); }, 800);
         }
     }
+
+    window.showTourStep = showTourStep;
 
     window.showDogTabTip = function() {
         var tab = currentTab();
