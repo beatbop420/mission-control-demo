@@ -557,11 +557,11 @@
     font-size: 36px;
     font-weight: 400;
     font-style: italic;
-    color: #e8b84b;
-    -webkit-text-stroke: 1.5px #9d8bb4;
+    color: #00d9d9;
+    -webkit-text-stroke: 1.5px #6b5e7f;
     text-shadow:
-        0 0 20px rgba(232, 184, 75, 0.9),
-        0 0 40px rgba(157, 139, 180, 0.5);
+        0 0 20px rgba(0, 217, 217, 0.8),
+        0 0 40px rgba(107, 94, 127, 0.4);
     letter-spacing: 2px;
     white-space: nowrap;
     opacity: 1;
