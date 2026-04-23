@@ -810,19 +810,19 @@
         // Fade in and float
         text.style.animation = 'fairy-float 4s ease-in-out forwards';
         
-        // Start confetti after 1 second
+        // Start confetti after 2.5 seconds
         window.setTimeout(function () {
             if (typeof bippityBoppityBoo === 'function') {
                 bippityBoppityBoo();
             }
             // Fade out the text after confetti starts
-            text.style.animation = 'fairy-fade-out 1.5s ease-out forwards';
-        }, 1000);
+            text.style.animation = 'fairy-fade-out 2.5s ease-out forwards';
+        }, 2500);
         
         // Remove text after it fades
         window.setTimeout(function () {
             text.remove();
-        }, 2500);
+        }, 5000);
     }
 
     function showWandMenu() {

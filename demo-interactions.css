@@ -553,14 +553,15 @@
 }
 
 .bippity-boppity-text {
-    font-family: 'Lexend', sans-serif;
-    font-size: 36px;
-    font-weight: 700;
+    font-family: Georgia, serif;
+    font-size: 42px;
+    font-weight: 400;
+    font-style: italic;
     color: #e8b84b;
     text-shadow: 
-        0 0 15px rgba(232, 184, 75, 0.9),
-        0 0 30px rgba(201, 184, 212, 0.5);
-    letter-spacing: 1px;
+        0 0 12px rgba(232, 184, 75, 0.7),
+        0 0 24px rgba(201, 184, 212, 0.4);
+    letter-spacing: 2px;
     white-space: nowrap;
     opacity: 0;
 }
@@ -568,15 +569,18 @@
 @keyframes fairy-float {
     0% {
         opacity: 0;
-        transform: translateX(-50%) translateY(20px);
+        transform: translateX(-50%) translateY(30px);
     }
-    15% {
+    12% {
         opacity: 1;
     }
-    50% {
-        transform: translateX(-50%) translateY(-15px);
+    40% {
+        transform: translateX(-50%) translateY(-20px);
     }
-    85% {
+    60% {
+        transform: translateX(-50%) translateY(-10px);
+    }
+    88% {
         opacity: 1;
     }
     100% {
