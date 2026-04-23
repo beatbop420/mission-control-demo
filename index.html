@@ -169,16 +169,40 @@
 
         .body-check .diamond {
             color: #c9b8d4;
-            animation: sparkle 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
             display: inline-block;
-            text-shadow: 0 0 4px rgba(201, 184, 212, 0.6);
+            position: relative;
+            animation: diamondFlash 1.4s ease-in-out infinite;
         }
 
-        @keyframes sparkle {
-            0%, 100% { opacity: 0.3; transform: scale(0.8); }
-            25% { opacity: 1; transform: scale(1.1); text-shadow: 0 0 8px rgba(201, 184, 212, 1); }
-            50% { opacity: 0.4; transform: scale(0.9); }
-            75% { opacity: 1; transform: scale(1.05); text-shadow: 0 0 6px rgba(201, 184, 212, 0.8); }
+        .body-check .diamond::before,
+        .body-check .diamond::after {
+            content: '✨';
+            position: absolute;
+            font-size: 6px;
+            color: #c9b8d4;
+            pointer-events: none;
+        }
+
+        .body-check .diamond::before {
+            top: -6px;
+            left: -4px;
+            animation: sparklePoint 0.8s ease-in-out infinite;
+        }
+
+        .body-check .diamond::after {
+            top: -4px;
+            right: -6px;
+            animation: sparklePoint 0.8s ease-in-out 0.3s infinite;
+        }
+
+        @keyframes diamondFlash {
+            0%, 100% { opacity: 0.5; text-shadow: 0 0 2px rgba(201, 184, 212, 0.4); }
+            50% { opacity: 1; text-shadow: 0 0 8px rgba(201, 184, 212, 1); }
+        }
+
+        @keyframes sparklePoint {
+            0%, 100% { opacity: 0; transform: scale(0.3); }
+            50% { opacity: 1; transform: scale(1); }
         }
 
         /* ===== STATUS BAR ===== */
@@ -352,6 +376,37 @@
         .urgent {
             color: #d4849a;
             font-weight: 600;
+        }
+
+        /* ===== WORK CARD CONTAINER ===== */
+        .work-card-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .work-left {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .work-right {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .work-notes-label {
+            font-size: 13px;
+            color: #9a8a92;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .work-right .work-notes {
+            flex: 1;
+            resize: vertical;
         }
 
         /* ===== WORK CALENDAR ===== */
@@ -2719,18 +2774,27 @@
     <div class="grid">
 
         <!-- -------- ON CALL -------- -->
-        <div class="card">
-            <h2>Work — On Call</h2>
-            <div id="work-month" class="work-month"></div>
-            <div id="work-calendar" class="work-calendar"></div>
-            <div class="work-checklist-section">
-                <div class="work-checklist-header">
-                    <span>On-Call Tasks</span>
-                    <button id="work-checklist-add" class="work-checklist-add-btn" onclick="addWorkChecklistItem()">+</button>
+        <div class="card work-card-container">
+            <h2 style="grid-column: 1 / -1;">Work — On Call</h2>
+
+            <!-- Left column: Calendar + Checklist -->
+            <div class="work-left">
+                <div id="work-month" class="work-month"></div>
+                <div id="work-calendar" class="work-calendar"></div>
+                <div class="work-checklist-section">
+                    <div class="work-checklist-header">
+                        <span>On-Call Tasks</span>
+                        <button id="work-checklist-add" class="work-checklist-add-btn" onclick="addWorkChecklistItem()">+</button>
+                    </div>
+                    <div id="work-checklist" class="work-checklist"></div>
                 </div>
-                <div id="work-checklist" class="work-checklist"></div>
             </div>
-            <textarea id="work-notes" class="work-notes" placeholder="Notes or schedule changes..." rows="3"></textarea>
+
+            <!-- Right column: Notes -->
+            <div class="work-right">
+                <label class="work-notes-label">Schedule Notes</label>
+                <textarea id="work-notes" class="work-notes" placeholder="Notes or schedule changes..."></textarea>
+            </div>
         </div>
 
         <!-- -------- KID BEHAVIOR TRACKER -------- -->
@@ -3512,9 +3576,50 @@
 
         function toggleWorkChecklistItem(idx) {
             const workData = loadData('work_schedule') || {};
+            const wasChecked = workData.checklist[idx].done;
             workData.checklist[idx].done = !workData.checklist[idx].done;
             saveData('work_schedule', workData);
+
+            // Celebrate when checking off a task!
+            if (!wasChecked) {
+                celebrateTaskCompletion();
+            }
+
             renderWorkCalendar();
+        }
+
+        function celebrateTaskCompletion() {
+            const RAIN_CHARS = ['✨','⭐','💫','🌟','🦋','💖','💜','🔮','👑','🌙','⋆','˚','✧'];
+            const screenW = window.innerWidth;
+            const screenH = window.innerHeight;
+            const totalSparkles = 25;
+
+            for (let i = 0; i < totalSparkles; i++) {
+                setTimeout(() => {
+                    const spark = document.createElement('span');
+                    spark.className = 'sparkle-rain';
+                    spark.textContent = RAIN_CHARS[Math.floor(Math.random() * RAIN_CHARS.length)];
+
+                    spark.style.left = (Math.random() * screenW) + 'px';
+                    spark.style.top = (-20 + Math.random() * -40) + 'px';
+
+                    const fallDist = screenH + 50 + Math.random() * 100;
+                    spark.style.setProperty('--fall-dist', fallDist + 'px');
+
+                    spark.style.fontSize = (12 + Math.random() * 22) + 'px';
+
+                    const colors = ['#9cbb8f', '#c9b8d4', '#d4a574', '#b85c70', '#f0c4d4', '#daa0d0'];
+                    spark.style.color = colors[Math.floor(Math.random() * colors.length)];
+
+                    spark.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+
+                    spark.style.marginLeft = (-30 + Math.random() * 60) + 'px';
+
+                    document.body.appendChild(spark);
+
+                    setTimeout(() => spark.remove(), 4000);
+                }, i * 40);
+            }
         }
 
         function deleteWorkChecklistItem(idx) {
