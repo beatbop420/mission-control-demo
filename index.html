@@ -830,10 +830,14 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 2px;
-            border-bottom: 1px solid #2a1e24;
+            padding: 8px 10px;
+            margin-bottom: 8px;
+            border: 1px solid #3d2f35;
+            border-radius: 6px;
+            background: rgba(26, 18, 22, 0.5);
+            transition: all 0.2s;
         }
-        .ecl-item:last-child { border-bottom: none; }
+        .ecl-item:hover { border-color: #6b5660; background: rgba(26, 18, 22, 0.8); }
         .ecl-check { flex-shrink: 0; cursor: pointer; }
         .ecl-text {
             flex: 1;
@@ -843,14 +847,14 @@
             cursor: text;
             min-width: 0;
             font-family: 'Lexend', sans-serif;
-            border-radius: 4px;
-            padding: 2px 4px;
+            background: transparent;
+            padding: 0;
             font-style: italic;
-            opacity: 0.8;
+            opacity: 0.75;
             transition: all 0.2s;
         }
-        .ecl-text:hover { background: rgba(61, 47, 53, 0.5); opacity: 1; }
-        .ecl-text:focus { background: #2a1e24; opacity: 1; }
+        .ecl-text:hover { opacity: 1; }
+        .ecl-text:focus { opacity: 1; font-style: normal; }
         .ecl-title {
             cursor: text;
             border-bottom: 2px dashed #6b5660;
@@ -3341,14 +3345,14 @@
 
         <!-- -------- MEDS -------- -->
         <div class="card">
-            <h2 class="ecl-title" contenteditable="true" data-ecl-key="meds" onblur="eclSaveTitle('meds')">Meds</h2>
+            <h2 class="ecl-title" contenteditable="true" data-ecl-key="meds">Meds</h2>
             <div class="ecl-list" id="ecl-meds"></div>
             <button class="ecl-add-btn" onclick="eclAdd('meds')">+ Add item</button>
         </div>
 
         <!-- -------- DAILY CARE -------- -->
         <div class="card">
-            <h2 class="ecl-title" contenteditable="true" data-ecl-key="care" onblur="eclSaveTitle('care')">Daily Care</h2>
+            <h2 class="ecl-title" contenteditable="true" data-ecl-key="care">Daily Care</h2>
             <div class="ecl-list" id="ecl-care"></div>
             <button class="ecl-add-btn" onclick="eclAdd('care')">+ Add item</button>
         </div>
@@ -6570,20 +6574,23 @@
         function eclSaveTitle(key) {
             const titleEl = document.querySelector('.ecl-title[data-ecl-key="' + key + '"]');
             if (titleEl) {
-                saveData('ecl_title_' + key, titleEl.textContent.trim());
+                const text = titleEl.textContent.trim();
+                if (text) saveData('ecl_title_' + key, text);
             }
         }
 
-        function eclLoadTitle(key) {
-            const saved = loadData('ecl_title_' + key);
-            return saved || (key === 'meds' ? 'Meds' : 'Daily Care');
-        }
-
-        function eclRenderTitle(key) {
+        function eclInitTitle(key) {
             const titleEl = document.querySelector('.ecl-title[data-ecl-key="' + key + '"]');
-            if (titleEl) {
-                titleEl.textContent = eclLoadTitle(key);
-            }
+            if (!titleEl) return;
+            const saved = loadData('ecl_title_' + key);
+            if (saved) titleEl.textContent = saved;
+            titleEl.addEventListener('blur', function() { eclSaveTitle(key); });
+            titleEl.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.blur();
+                }
+            });
         }
 
         // ========================================================================
@@ -6642,8 +6649,8 @@
         loadCheckboxes();
         loadTextAreas();
         renderFinance();
-        eclRenderTitle('meds');
-        eclRenderTitle('care');
+        eclInitTitle('meds');
+        eclInitTitle('care');
         eclRender('meds');
         eclRender('care');
 
