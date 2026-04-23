@@ -808,7 +808,7 @@
         document.body.appendChild(text);
         
         // Fade in and float
-        text.style.animation = 'fairy-float 4s ease-in-out forwards';
+        text.style.animation = 'fairy-float 6s ease-in-out forwards';
         
         // Start confetti after 2.5 seconds
         window.setTimeout(function () {
