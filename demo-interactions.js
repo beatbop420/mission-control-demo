@@ -170,28 +170,16 @@
         var el = q(selector);
         if (!el) return null;
 
-        // For pressure bar, highlight pressure info items above + bar + labels below
+        // For pressure bar, highlight the whole pressure section as one box
         if (selector === '.pressure-bar') {
             var parent = el.parentNode;
-            var labels = parent ? q('.pressure-labels', parent) : null;
-
-            // Find pressure-related items above the bar (Pressure, 6hr Change, Trend)
-            var items = parent ? qa('.item', parent) : [];
-            var pressureItems = items.filter(function(item) {
-                var label = q('.label', item);
-                return label && (label.textContent.includes('Pressure') ||
-                                label.textContent.includes('Change') ||
-                                label.textContent.includes('Trend'));
-            });
-
-            // Highlight all pressure items, bar, and labels
-            pressureItems.forEach(function(item) {
-                item.classList.add('demo-highlight');
-            });
-            el.classList.add('demo-highlight');
-            if (labels) labels.classList.add('demo-highlight');
-
-            highlightEl = el;
+            if (parent) {
+                parent.classList.add('demo-highlight');
+                highlightEl = parent;
+            } else {
+                highlightEl = el;
+                el.classList.add('demo-highlight');
+            }
         } else {
             highlightEl = el;
             el.classList.add('demo-highlight');
@@ -536,13 +524,25 @@
         }, 260);
     }
 
+    function demoToast(message) {
+        var existing = document.getElementById('demo-toast-msg');
+        if (existing) existing.remove();
+        var toast = document.createElement('div');
+        toast.id = 'demo-toast-msg';
+        toast.textContent = message;
+        toast.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#2a1e24;color:#d4ccc8;padding:10px 20px;border-radius:20px;font-size:13px;font-family:Lexend,sans-serif;z-index:9999;box-shadow:0 2px 12px rgba(0,0,0,0.5);border:1px solid #b48db5;pointer-events:none;opacity:1;transition:opacity 0.5s;';
+        document.body.appendChild(toast);
+        setTimeout(function() { toast.style.opacity = '0'; }, 1800);
+        setTimeout(function() { if (toast.parentNode) toast.remove(); }, 2400);
+    }
+
     function winTheDay() {
         var greeting = q('#mc-greeting-text');
         if (greeting) {
             greeting.textContent = 'Win logged. Mission Control sees the effort, not just the output.';
         }
         sparkleFrom(q('.header h1') || document.body, 42);
-        notify('Dopamine hit triggered');
+        demoToast('Win logged. Dopamine unlocked. ✨');
     }
 
     function seedSamples() {
