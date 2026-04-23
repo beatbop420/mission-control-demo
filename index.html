@@ -825,12 +825,54 @@
             border-style: solid;
         }
 
-        /* ===== MEDS ===== */
-        .med-time {
-            font-size: 12px;
-            color: #6b5660;
-            margin-left: 8px;
+        /* ===== EDITABLE CHECKLISTS ===== */
+        .ecl-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 2px;
+            border-bottom: 1px solid #2a1e24;
         }
+        .ecl-item:last-child { border-bottom: none; }
+        .ecl-check { flex-shrink: 0; cursor: pointer; }
+        .ecl-text {
+            flex: 1;
+            color: #d4ccc8;
+            font-size: 14px;
+            outline: none;
+            cursor: text;
+            min-width: 0;
+            font-family: 'Lexend', sans-serif;
+            border-radius: 4px;
+            padding: 2px 4px;
+        }
+        .ecl-text:focus { background: #2a1e24; }
+        .ecl-del {
+            background: none;
+            border: none;
+            color: #3d2f35;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0 2px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .ecl-del:hover { color: #d4849a; }
+        .ecl-add-btn {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            background: none;
+            border: 1px dashed #3d2f35;
+            color: #6b5660;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            font-family: 'Lexend', sans-serif;
+            text-align: center;
+        }
+        .ecl-add-btn:hover { border-color: #b48db5; color: #b48db5; }
 
         /* ===== FULL WIDTH CARDS ===== */
         .full-width {
@@ -3281,93 +3323,24 @@
                 </div>
             </div>
             <p style="font-size: 11px; color: #6b5660; margin-top: 6px;">
-                Add your calendar link or use this space for upcoming events.
+                Shows your real Google Calendar when you're logged into Google in your browser. Add or edit events in Google Calendar directly — they appear here automatically.
             </p>
         </div>
 
         <!-- -------- MEDS -------- -->
         <div class="card">
             <h2>Meds</h2>
-            <div class="todo-item">
-                <input type="checkbox"> <span>Morning meds <span class="med-time">— 8 AM</span></span>
-            </div>
-            <div class="todo-item">
-                <input type="checkbox"> <span>Afternoon meds <span class="med-time">— 2 PM</span></span>
-            </div>
-            <div class="todo-item">
-                <input type="checkbox"> <span>Night meds <span class="med-time">— 9 PM</span></span>
-            </div>
+            <div class="ecl-list" id="ecl-meds"></div>
+            <button class="ecl-add-btn" onclick="eclAdd('meds')">+ Add item</button>
         </div>
 
-        <!-- -------- CARE TASKS -------- -->
+        <!-- -------- DAILY CARE -------- -->
         <div class="card">
-            <h2>Care Tasks</h2>
-            <div class="todo-item">
-                <input type="checkbox"> <span>Morning care task</span>
-            </div>
-            <div class="todo-item">
-                <input type="checkbox"> <span>Afternoon care task</span>
-            </div>
-            <div class="todo-item">
-                <input type="checkbox"> <span>Evening care task</span>
-            </div>
-            <div class="todo-item">
-                <input type="checkbox"> <span>Optional care task</span>
-            </div>
+            <h2>Daily Care</h2>
+            <div class="ecl-list" id="ecl-care"></div>
+            <button class="ecl-add-btn" onclick="eclAdd('care')">+ Add item</button>
         </div>
 
-        <!-- -------- CONTACTS -------- -->
-        <div class="card">
-            <h2 class="collapsible" onclick="toggleSection('contacts-content', this)">Contacts</h2>
-            <div class="collapsible-content" id="contacts-content">
-                <div class="item">
-                    <span class="label">Contact A</span>
-                    <span class="value">—</span>
-                </div>
-                <div class="item">
-                    <span class="label">Contact B</span>
-                    <span class="value">—</span>
-                </div>
-                <textarea class="note-box" rows="2" placeholder="Contact notes..."></textarea>
-            </div>
-        </div>
-
-        <!-- -------- DOCUMENTS -------- -->
-        <div class="card">
-            <h2 class="collapsible" onclick="toggleSection('documents-content', this)">Documents — tap to expand</h2>
-            <div class="collapsible-content" id="documents-content">
-                <div class="item">
-                    <span class="label">Next Deadline</span>
-                    <span class="value">—</span>
-                </div>
-                <div class="item">
-                    <span class="label">Docs Needed</span>
-                    <span class="value">—</span>
-                </div>
-                <div class="item">
-                    <span class="label">Status</span>
-                    <span class="value">—</span>
-                </div>
-                <textarea class="note-box" rows="2" placeholder="Document notes..."></textarea>
-            </div>
-        </div>
-
-        <!-- -------- TODAY'S TOP 3 -------- -->
-        <div class="card">
-            <h2>Today's Top 3</h2>
-            <div class="todo-item">
-                <input type="checkbox"> <span>1. _______________</span>
-            </div>
-            <div class="todo-item">
-                <input type="checkbox"> <span>2. _______________</span>
-            </div>
-            <div class="todo-item">
-                <input type="checkbox"> <span>3. _______________</span>
-            </div>
-            <p style="font-size: 12px; color: #6b5660; margin-top: 8px;">
-                Can't decide? Just pick the one that would make tomorrow easier.
-            </p>
-        </div>
 
         <!-- -------- BRAIN DUMP (full width) -------- -->
         <div class="card full-width">
@@ -6509,6 +6482,80 @@
         }
 
         // ========================================================================
+        // ========== EDITABLE CHECKLISTS (Meds, Daily Care) ==========
+        // ========================================================================
+
+        const ECL_DEFAULTS = {
+            meds: [
+                { text: 'Morning meds', checked: false },
+                { text: 'Afternoon meds', checked: false },
+                { text: 'Night meds', checked: false }
+            ],
+            care: [
+                { text: 'Dogs — AM feed + out', checked: false },
+                { text: 'Dogs — PM feed + out', checked: false },
+                { text: 'Rabbits — hay + water', checked: false },
+                { text: 'Cat — feed', checked: false }
+            ]
+        };
+
+        function eclLoad(key) {
+            const saved = loadData('ecl_' + key);
+            return saved ? saved : ECL_DEFAULTS[key].map(x => ({ ...x }));
+        }
+
+        function eclSave(key) {
+            const list = document.getElementById('ecl-' + key);
+            if (!list) return;
+            const items = [];
+            list.querySelectorAll('.ecl-item').forEach(item => {
+                items.push({
+                    text: item.querySelector('.ecl-text').textContent.trim(),
+                    checked: item.querySelector('.ecl-check').checked
+                });
+            });
+            saveData('ecl_' + key, items);
+        }
+
+        function eclRender(key) {
+            const list = document.getElementById('ecl-' + key);
+            if (!list) return;
+            const items = eclLoad(key);
+            list.innerHTML = '';
+            items.forEach((item, i) => {
+                const div = document.createElement('div');
+                div.className = 'ecl-item';
+                div.innerHTML =
+                    '<input type="checkbox" class="ecl-check"' + (item.checked ? ' checked' : '') + ' onchange="eclSave(\'' + key + '\')">' +
+                    '<span class="ecl-text" contenteditable="true" spellcheck="false" onblur="eclSave(\'' + key + '\')" onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}">' + item.text + '</span>' +
+                    '<button class="ecl-del" onclick="eclDeleteItem(\'' + key + '\',' + i + ')">×</button>';
+                list.appendChild(div);
+            });
+        }
+
+        function eclAdd(key) {
+            const items = eclLoad(key);
+            items.push({ text: 'New item', checked: false });
+            saveData('ecl_' + key, items);
+            eclRender(key);
+            const list = document.getElementById('ecl-' + key);
+            const textEl = list.lastElementChild.querySelector('.ecl-text');
+            textEl.focus();
+            const range = document.createRange();
+            range.selectNodeContents(textEl);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
+
+        function eclDeleteItem(key, index) {
+            const items = eclLoad(key);
+            items.splice(index, 1);
+            saveData('ecl_' + key, items);
+            eclRender(key);
+        }
+
+        // ========================================================================
         // ========== AUTO-SAVE FOR EVERYTHING ELSE ==========
         // ========================================================================
         // Saves checkboxes, text notes, and brain dump automatically
@@ -6564,6 +6611,8 @@
         loadCheckboxes();
         loadTextAreas();
         renderFinance();
+        eclRender('meds');
+        eclRender('care');
 
         // ========================================================================
         // ========== CYCLE TRACKER ==========
