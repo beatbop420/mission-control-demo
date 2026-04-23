@@ -167,6 +167,16 @@
             color: #ffffff;
         }
 
+        .body-check .diamond {
+            color: #c9b8d4;
+            animation: twinkle 2.5s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
         /* ===== STATUS BAR ===== */
         /* Shows only when something needs attention — hidden when everything is fine */
         #app-status-bar {
@@ -338,6 +348,86 @@
         .urgent {
             color: #d4849a;
             font-weight: 600;
+        }
+
+        /* ===== WORK CALENDAR ===== */
+        .work-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .work-day {
+            background: rgba(201, 184, 212, 0.08);
+            border: 1px solid rgba(201, 184, 212, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .work-day:hover {
+            background: rgba(201, 184, 212, 0.15);
+            border-color: rgba(201, 184, 212, 0.6);
+        }
+
+        .work-day.today {
+            background: rgba(156, 187, 143, 0.2);
+            border-color: rgba(156, 187, 143, 0.6);
+        }
+
+        .work-day-label {
+            font-size: 11px;
+            color: #9a8a92;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .work-day-date {
+            font-size: 13px;
+            color: #f0eae8;
+            font-weight: 600;
+            margin: 4px 0;
+        }
+
+        .work-day-entry {
+            font-size: 12px;
+            color: #d4a574;
+            min-height: 20px;
+            word-break: break-word;
+        }
+
+        .work-day-entry.empty {
+            color: #6b5660;
+            font-style: italic;
+            font-size: 10px;
+        }
+
+        .work-notes {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #f0eae8;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .work-notes::placeholder {
+            color: #6b5660;
+        }
+
+        .work-notes:focus {
+            outline: none;
+            border-color: rgba(201, 184, 212, 0.5);
+            background: rgba(201, 184, 212, 0.05);
         }
 
         /* ===== CHECKBOXES ===== */
@@ -2185,9 +2275,9 @@
 
     <!-- ====== BODY CHECK ====== -->
     <div class="body-check">
-        <span>Unclench your jaw</span> <span style="color:#ffffff; opacity:0.4; font-size:10px;">💎</span>
-        <span>Drop your shoulders</span> <span style="color:#ffffff; opacity:0.4; font-size:10px;">💎</span>
-        <span>Take a breath</span> <span style="color:#ffffff; opacity:0.4; font-size:10px;">💎</span>
+        <span>Unclench your jaw</span> <span class="diamond" style="font-size:10px;">💎</span>
+        <span>Drop your shoulders</span> <span class="diamond" style="font-size:10px;">💎</span>
+        <span>Take a breath</span> <span class="diamond" style="font-size:10px;">💎</span>
         <span>You're doing fine</span>
     </div>
 
@@ -2531,18 +2621,8 @@
         <!-- -------- ON CALL -------- -->
         <div class="card">
             <h2>Work — On Call</h2>
-            <div class="item">
-                <span class="label">Status</span>
-                <span class="value">On Call 7a–7p</span>
-            </div>
-            <div class="item">
-                <span class="label">Cases Today</span>
-                <span class="value">0</span>
-            </div>
-            <div class="item">
-                <span class="label">Next Day Off</span>
-                <span class="value">???</span>
-            </div>
+            <div id="work-calendar" class="work-calendar"></div>
+            <textarea id="work-notes" class="work-notes" placeholder="Notes or schedule changes..." rows="3"></textarea>
         </div>
 
         <!-- -------- KID BEHAVIOR TRACKER -------- -->
@@ -3228,7 +3308,56 @@
 
             // Refresh Right Now data when switching to it
             if (tab === 'rightnow') renderRightNow();
+            if (tab === 'life') renderWorkCalendar();
             if (tab === 'assistant' && window.Assistant) window.Assistant.refresh();
+        }
+
+        // ========== WORK CALENDAR ==========
+        function renderWorkCalendar() {
+            const cal = document.getElementById('work-calendar');
+            const notesEl = document.getElementById('work-notes');
+            if (!cal || !notesEl) return;
+
+            const today = new Date();
+            const workData = loadData('work_schedule') || {};
+            const notes = workData.notes || '';
+
+            // Render 7-day calendar
+            cal.innerHTML = '';
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(today);
+                d.setDate(d.getDate() + i);
+                const dateStr = d.toISOString().slice(0, 10);
+                const dayLabel = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()];
+                const dayOfMonth = d.getDate();
+                const entry = workData[dateStr] || '';
+
+                const dayEl = document.createElement('div');
+                dayEl.className = 'work-day' + (i === 0 ? ' today' : '');
+                dayEl.innerHTML = `
+                    <div class="work-day-label">${dayLabel}</div>
+                    <div class="work-day-date">${dayOfMonth}</div>
+                    <div class="work-day-entry ${entry ? '' : 'empty'}">${entry || '—'}</div>
+                `;
+
+                dayEl.addEventListener('click', () => {
+                    const input = prompt(`Enter work status for ${dayLabel}, ${dayOfMonth}:`, entry);
+                    if (input !== null) {
+                        workData[dateStr] = input;
+                        saveData('work_schedule', workData);
+                        renderWorkCalendar();
+                    }
+                });
+
+                cal.appendChild(dayEl);
+            }
+
+            // Load and display notes
+            notesEl.value = notes;
+            notesEl.addEventListener('change', () => {
+                workData.notes = notesEl.value;
+                saveData('work_schedule', workData);
+            });
         }
 
         // ========== RIGHT NOW TAB ==========
@@ -7761,6 +7890,7 @@
 
             renderFinance();
             renderRightNow();
+            renderWorkCalendar();
         }
 
         // Kick it off!
