@@ -6548,10 +6548,39 @@
             items.forEach((item, i) => {
                 const div = document.createElement('div');
                 div.className = 'ecl-item';
-                div.innerHTML =
-                    '<input type="checkbox" class="ecl-check"' + (item.checked ? ' checked' : '') + ' onchange="eclSave(\'' + key + '\')">' +
-                    '<span class="ecl-text" contenteditable="true" spellcheck="false" onblur="eclSave(\'' + key + '\')" onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}">' + item.text + '</span>' +
-                    '<button class="ecl-del" onclick="eclDeleteItem(\'' + key + '\',' + i + ')">×</button>';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'ecl-check';
+                checkbox.checked = item.checked;
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        const pos = getCenter(this);
+                        spawnSparkles(pos.x, pos.y, 15);
+                    }
+                    eclSave(key);
+                });
+
+                const span = document.createElement('span');
+                span.className = 'ecl-text';
+                span.contentEditable = 'true';
+                span.spellcheck = false;
+                span.textContent = item.text;
+                span.addEventListener('blur', () => eclSave(key));
+                span.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        span.blur();
+                    }
+                });
+
+                const btn = document.createElement('button');
+                btn.className = 'ecl-del';
+                btn.textContent = '×';
+                btn.onclick = () => eclDeleteItem(key, i);
+
+                div.appendChild(checkbox);
+                div.appendChild(span);
+                div.appendChild(btn);
                 list.appendChild(div);
             });
         }
