@@ -2143,13 +2143,17 @@
     var b=document.getElementById('demo-banner');
     function fix(){
         var h=b.offsetHeight;
+        if(!h) return; // not rendered yet, retry will catch it
         document.body.style.paddingTop=h+'px';
         var dog=document.querySelector('.corner-dog');
         var wand=document.querySelector('.magic-wand');
         if(dog) dog.style.top=(h+4)+'px';
         if(wand) wand.style.top=(h+4)+'px';
     }
+    // Run at multiple points — rAF fires too early and often gets h=0
     requestAnimationFrame(fix);
+    setTimeout(fix,100);
+    setTimeout(fix,500);
     window.addEventListener('resize',fix);
 })();
 </script>

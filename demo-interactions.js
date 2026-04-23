@@ -606,7 +606,7 @@
                     '<button class="demo-console-toggle" type="button" data-demo-action="toggle-console" aria-label="Expand demo controls">+</button>' +
                 '</div>' +
                 '<div class="demo-console-body">' +
-                    '<p class="demo-console-copy">Start blank for privacy, or use scenarios to show how the app reacts to real-life changes.</p>' +
+                    '<p class="demo-console-copy">Starts empty by default. Load sample data or run a scenario to see everything in action.</p>' +
                     '<div class="demo-action-grid">' +
                         actionButton('start-tour', 'Guided tour', 'Walk the viewer through the app') +
                         actionButton('seed-samples', 'Sample data', 'Fill with generic examples') +
