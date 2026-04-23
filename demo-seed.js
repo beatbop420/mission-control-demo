@@ -1,13 +1,9 @@
-// DEMO MODE — Fake data seeder
-// Runs on first page load. Fills localStorage with demo data so the app looks populated.
+// DEMO MODE — Blank Slate Seeder
+// Runs on first page load. Fills localStorage with empty structure so the app is ready for input.
 // Sets a flag after first seed so we don't overwrite user's clicks on reload.
-//
-// KEY PREFIX RULES:
-//   - Main app (loadData/saveData) expects 'mc_<key>' — we prefix those
-//   - Assistant tab uses raw 'ast_<key>' — no prefix needed
 
 (function () {
-    const SEED_FLAG = 'demo_seeded_v2';
+    const SEED_FLAG = 'demo_seeded_v3';
     if (localStorage.getItem(SEED_FLAG)) return;
 
     const today = new Date();
@@ -21,88 +17,48 @@
     // Keys stored via saveData() — app reads them with loadData(key) → 'mc_' + key
     const mcData = {
         // === MONEY — ACCOUNTS ===
-        fin_accounts: [
-            {
-                id: 'demo-checking',
-                name: 'Demo Checking',
-                type: 'Checking',
-                availableBalance: 1247.83,
-                postedBalance: 1389.50,
-                pendingTotal: -141.67,
-                pendingCount: 3,
-                balance_date: nowIso,
-            },
-            {
-                id: 'demo-savings',
-                name: 'Demo Savings',
-                type: 'Savings',
-                availableBalance: 2450.00,
-                postedBalance: 2450.00,
-                pendingTotal: 0,
-                pendingCount: 0,
-                balance_date: nowIso,
-            },
-        ],
+        fin_accounts: [],
 
         // === MONEY — BILLS ===
-        fin_bills: [
-            { id: 'b1', name: 'Rent', amount: 1100, dueDay: 1, status: 'paid', category: 'Fixed' },
-            { id: 'b2', name: 'Electric', amount: 95, dueDay: 15, status: 'pending', category: 'Fixed' },
-            { id: 'b3', name: 'Internet', amount: 65, dueDay: 12, status: 'paid', category: 'Fixed' },
-            { id: 'b4', name: 'Phone', amount: 55, dueDay: 18, status: 'unpaid', category: 'Fixed' },
-            { id: 'b5', name: 'Car Insurance', amount: 120, dueDay: 22, status: 'unpaid', category: 'Fixed' },
-            { id: 'b6', name: 'Spotify', amount: 12, dueDay: 8, status: 'paid', category: 'Fixed' },
-        ],
+        fin_bills: [],
 
         // === MONEY — INCOME / DEBTS / MISC ===
-        fin_income: [
-            { id: 'i1', name: 'Main Job', amount: 1800, frequency: 'biweekly', nextDate: isoDate(4) },
-        ],
-        fin_debts: [
-            { id: 'd1', name: 'Credit Card', balance: 847, minPayment: 35, interestRate: 24.99 },
-        ],
-        fin_emergency: { target: 1000, current: 325 },
+        fin_income: [],
+        fin_debts: [],
+        fin_emergency: { goal: 0, current: 0 },
         fin_spending: [],
         fin_transactions: [],
 
         // === BUCKETS + SETTINGS ===
         buckets: {
-            fixed: { target: 1447, current: 1447 },
-            safety: { target: 300, current: 200 },
-            life: { target: 400, current: 265 },
-            dopamine: { target: 150, current: 85 },
+            fixed: { balance: 0, needed: 0 },
+            safety: { balance: 0, goal: 0 },
+            life: { balance: 0, budgetPerPaycheck: 0 },
+            dopamine: { balance: 0, budgetPerPaycheck: 0 },
         },
         bucket_settings: {
-            nextPayday: isoDate(4),
-            paycheckAmount: 1800,
+            nextPayday: isoDate(7),
+            paycheckAmount: 0,
+            safetyAmount: 0,
+            lifeBudget: 0,
+            dopamineBudget: 0,
+            cashWithdraw: 0,
+            payFrequency: 14,
         },
         manual_pending: 0,
-        safe_to_spend: 350,
-        sinking_funds: [
-            { id: 'sf1', name: 'Car Repairs', target: 500, current: 120 },
-            { id: 'sf2', name: 'Roma Birthday', target: 200, current: 50 },
-        ],
+        safe_to_spend: 0,
+        sinking_funds: [],
         bank_data_source: 'demo',
         bank_last_fetch_iso: nowIso,
         bank_last_fetch_label: 'just now (demo)',
 
         // === LIFE ===
-        cycle_entries: [
-            { date: isoDate(-28), flow: 'medium', symptoms: ['cramps'] },
-            { date: isoDate(-14), flow: null, symptoms: ['bloating'] },
-            { date: isoDate(-2), flow: 'spotting', symptoms: ['headache'] },
-        ],
-        kid_logs: [
-            { date: isoDate(-3), mood: 'good', notes: 'Great day at school — got an A on science test.' },
-            { date: isoDate(-5), mood: 'rough', notes: 'Anxious about weekend schedule change.' },
-            { date: isoDate(-7), mood: 'good', notes: 'Soccer practice went well.' },
-        ],
-        checkboxes: {
-            [isoDate(0)]: { meds: true, water: true, meal: false, outside: false },
-        },
+        cycle_entries: [],
+        kid_logs: [],
+        checkboxes: {},
         timestamps: {},
         symptom_log: [],
-        textareas: { brain_dump: 'Feeling okay today. Got some work done, still need to finish the laundry. Andre is coming over this weekend.' },
+        textareas: { brain_dump: '' },
         paycheck_log: [],
         last_auto_run: nowIso,
         last_bill_reset_month: today.getMonth(),
@@ -125,61 +81,135 @@
     }
 
     // Assistant tab — uses raw 'ast_' keys, no prefix
-    const astTasks = [
+    const astTasks = [];
+    localStorage.setItem('ast_tasks', JSON.stringify(astTasks));
+    localStorage.setItem('ast_energy', JSON.stringify({ level: 5, max: 10, updatedAt: nowIso, history: [] }));
+    localStorage.setItem('ast_settings', JSON.stringify({ defaultView: 'active' }));
+    localStorage.setItem('ast_version', '0');
+
+    localStorage.setItem(SEED_FLAG, nowIso);
+    console.log('[DEMO MODE] Initialized blank slate.');
+})();
+
+// Function to populate with sample data if the user wants to see it full
+window.seedSampleData = function() {
+    const today = new Date();
+    const isoDate = (offsetDays = 0) => {
+        const d = new Date(today);
+        d.setDate(d.getDate() + offsetDays);
+        return d.toISOString().slice(0, 10);
+    };
+    const nowIso = today.toISOString();
+
+    const sampleTasks = [
         {
             id: 't1',
-            title: 'Finish bankruptcy paperwork',
+            title: 'Schedule dentist appointment',
+            priority: 'medium',
+            dueDate: isoDate(5),
             steps: [
-                { id: 's1', text: 'Gather last 6 months of bank statements', done: true },
-                { id: 's2', text: 'List all creditors with amounts', done: false },
-                { id: 's3', text: 'Upload to court website', done: false },
+                { id: 's1', text: 'Call the office to check availability', done: false },
+                { id: 's2', text: 'Confirm insurance is accepted', done: false }
             ],
-            priority: 'high',
-            tags: ['bankruptcy', 'legal'],
-            dueDate: isoDate(3),
-            pinned: true,
-            createdAt: Date.now() - 86400000 * 2,
+            createdAt: nowIso,
+            updatedAt: nowIso
         },
         {
             id: 't2',
-            title: 'Reply to lawyer about custody hearing',
-            steps: [],
+            title: 'Grocery run before Thursday',
             priority: 'high',
-            tags: ['custody', 'legal'],
-            dueDate: isoDate(1),
-            pinned: true,
-            createdAt: Date.now() - 86400000,
+            dueDate: isoDate(2),
+            steps: [
+                { id: 's1', text: 'Make list', done: true },
+                { id: 's2', text: 'Go to store', done: false }
+            ],
+            createdAt: nowIso,
+            updatedAt: nowIso
         },
         {
             id: 't3',
-            title: 'Take dogs to vet for annual checkup',
-            steps: [
-                { id: 's1', text: 'Call clinic to book', done: false },
-                { id: 's2', text: 'Gather vaccination records', done: false },
-            ],
-            priority: 'medium',
-            tags: ['pets', 'health'],
-            dueDate: isoDate(14),
-            pinned: false,
-            createdAt: Date.now() - 86400000 * 4,
+            title: 'Call about car insurance renewal',
+            priority: 'low',
+            dueDate: isoDate(12),
+            steps: [],
+            createdAt: nowIso,
+            updatedAt: nowIso
+        }
+    ];
+
+    // Mid-month scenario: some bills paid, account has a balance, buckets partially filled
+    const sampleAccounts = [
+        {
+            id: 'sample-checking',
+            name: 'Checking Account',
+            type: 'Checking',
+            balance: 1247.83,
+            availableBalance: 1247.83,
+            postedBalance: 1389.50,
+            pendingTotal: -141.67,
+            pendingCount: 3,
+            balance_date: nowIso
         },
         {
-            id: 't4',
-            title: 'Meal plan for the week',
-            steps: [],
-            priority: 'low',
-            tags: ['home', 'weekly'],
-            dueDate: null,
-            pinned: false,
-            createdAt: Date.now() - 86400000 * 3,
-        },
+            id: 'sample-savings',
+            name: 'Safety Savings',
+            type: 'Savings',
+            balance: 420.00,
+            availableBalance: 420.00,
+            postedBalance: 420.00,
+            pendingTotal: 0,
+            pendingCount: 0,
+            balance_date: nowIso
+        }
     ];
-    localStorage.setItem('ast_tasks', JSON.stringify(astTasks));
-    localStorage.setItem('ast_energy', JSON.stringify({ value: 6, updatedAt: Date.now() }));
-    localStorage.setItem('ast_settings', JSON.stringify({ theme: 'dark', version: 2 }));
-    localStorage.setItem('ast_version', '2');
 
-    localStorage.setItem(SEED_FLAG, nowIso);
-    const total = Object.keys(mcData).length + 4;
-    console.log('[DEMO MODE] Seeded ' + total + ' localStorage keys.');
-})();
+    const sampleBills = [
+        { id: 'sb1', name: 'Housing / Rent', amount: 950, dueDate: isoDate(-12), recurring: 'monthly', status: 'paid', paid: true, paidDate: isoDate(-12), category: 'Fixed' },
+        { id: 'sb2', name: 'Electric', amount: 87, dueDate: isoDate(5), recurring: 'monthly', status: 'pending', paid: false, category: 'Fixed' },
+        { id: 'sb3', name: 'Phone', amount: 52, dueDate: isoDate(8), recurring: 'monthly', status: 'unpaid', paid: false, category: 'Fixed' },
+        { id: 'sb4', name: 'Streaming Bundle', amount: 28, dueDate: isoDate(-3), recurring: 'monthly', status: 'paid', paid: true, paidDate: isoDate(-3), category: 'Fixed' },
+        { id: 'sb5', name: 'Internet', amount: 65, dueDate: isoDate(14), recurring: 'monthly', status: 'unpaid', paid: false, category: 'Fixed' }
+    ];
+
+    const sampleData = {
+        fin_accounts: sampleAccounts,
+        fin_bills: sampleBills,
+        fin_income: [{ id: 'si1', name: 'Main Job', amount: 1800, frequency: 'biweekly', nextDate: isoDate(6) }],
+        fin_debts: [{ id: 'sd1', name: 'Credit Card', type: 'Credit Card', currentBalance: 1250, originalBalance: 1500, apr: 19.99, minPayment: 35, dueDate: isoDate(11), notes: '' }],
+        fin_emergency: { goal: 2000, current: 420 },
+        fin_spending: [],
+        fin_transactions: [],
+        buckets: {
+            fixed: { balance: 450, needed: 987 },
+            safety: { balance: 420, goal: 1000 },
+            life: { balance: 187, budgetPerPaycheck: 350 },
+            dopamine: { balance: 45, budgetPerPaycheck: 100 }
+        },
+        bucket_settings: {
+            nextPayday: isoDate(6),
+            paycheckAmount: 1800,
+            safetyAmount: 50,
+            lifeBudget: 350,
+            dopamineBudget: 100,
+            cashWithdraw: 40,
+            payFrequency: 14
+        },
+        safe_to_spend: 232,
+        manual_pending: 0,
+        sinking_funds: [],
+        kid_logs: [],
+        textareas: { brain_dump: 'I need to call the dentist, finish that work report, and figure out why the car is making that noise. Also groceries before Thursday.' }
+    };
+
+    Object.entries(sampleData).forEach(([key, value]) => {
+        localStorage.setItem('mc_' + key, JSON.stringify(value));
+        localStorage.setItem('mc_ts_' + key, nowIso);
+    });
+
+    localStorage.setItem('ast_tasks', JSON.stringify(sampleTasks));
+    localStorage.setItem('ast_energy', JSON.stringify({ level: 6, max: 10, updatedAt: nowIso, history: [] }));
+    localStorage.setItem('ast_settings', JSON.stringify({ defaultView: 'active' }));
+    localStorage.setItem('ast_version', '0');
+
+    location.reload();
+};

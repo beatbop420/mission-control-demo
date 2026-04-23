@@ -664,49 +664,101 @@
     }
 
     async function requestAssistantPlan(payload) {
-        if (window.__AST_TEST_AI_RESPONSE__) {
-            return clone(window.__AST_TEST_AI_RESPONSE__);
+        // --- DEMO MODE BRAIN ---
+        // Instead of hitting a live server, we simulate the AI thinking
+        // by looking for keywords and returning a "smart" response.
+        const input = String(
+            payload.dump ||
+            payload.text ||
+            (payload.task && payload.task.title) ||
+            ""
+        ).toLowerCase();
+
+        // Add a fake delay so it feels like it's thinking
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // 1. DENTIST / MEDICAL
+        if (input.includes('dentist') || input.includes('doctor') || input.includes('appointment')) {
+            return {
+                summary: "You need to lock in a time for this health check before the schedule fills up for the month.",
+                recommendedFocus: "Check your calendar for open morning slots.",
+                quickWin: "Find your insurance card and put it on your desk.",
+                taskSuggestions: [
+                    {
+                        title: "Book the appointment",
+                        why: "Direct action to clear this from your mental load.",
+                        energyFit: "medium",
+                        steps: ["Call the office", "Confirm they take your insurance", "Add to digital calendar"]
+                    }
+                ]
+            };
         }
 
-        if (typeof supabaseClient !== 'undefined' &&
-            supabaseClient &&
-            supabaseClient.functions &&
-            typeof supabaseClient.functions.invoke === 'function') {
-            const response = await supabaseClient.functions.invoke('assistant-plan', {
-                body: payload
-            });
-            if (response.error) {
-                throw new Error(response.error.message || 'Could not reach the planner.');
-            }
-            return response.data && response.data.result ? response.data.result : response.data;
+        // 2. CLEANING / ORGANIZING
+        if (input.includes('clean') || input.includes('laundry') || input.includes('organize') || input.includes('tidy')) {
+            return {
+                summary: "Your environment is affecting your focus. Let's break this down into tiny, low-friction chunks.",
+                recommendedFocus: "The 10-minute timer method.",
+                quickWin: "Clear just one flat surface (table or counter).",
+                taskSuggestions: [
+                    {
+                        title: "Clear the 'hot spot'",
+                        why: "One clean area creates a visual 'reset' for your brain.",
+                        energyFit: "low",
+                        steps: ["Set a timer for 10 mins", "Sort into: Keep, Trash, Elsewhere", "Wipe the surface down"]
+                    }
+                ]
+            };
         }
 
-        if (typeof SUPABASE_URL !== 'undefined' && typeof SUPABASE_ANON_KEY !== 'undefined') {
-            const response = await fetch(
-                SUPABASE_URL.replace(/\/$/, '') + '/functions/v1/assistant-plan',
+        // 3. FINANCIAL / BILLS
+        if (input.includes('bill') || input.includes('pay') || input.includes('money') || input.includes('bank')) {
+            return {
+                summary: "Financial tasks can cause a spiral. We're going to treat this as a simple data-entry task.",
+                recommendedFocus: "Opening the laptop and logging in.",
+                quickWin: "Check your 'Safe to Spend' number on the Money tab.",
+                taskSuggestions: [
+                    {
+                        title: "Address the payment",
+                        why: "Preventing late fees is the priority here.",
+                        energyFit: "medium",
+                        steps: ["Log into the portal", "Check the exact balance due", "Submit the minimum or full payment"]
+                    }
+                ]
+            };
+        }
+
+        // 4. WORK / WRITING / EMAILS
+        if (input.includes('work') || input.includes('email') || input.includes('write') || input.includes('reply')) {
+            return {
+                summary: "Communication tasks often feel heavier than they are. Let's use a template approach.",
+                recommendedFocus: "Drafting a single 'shitty first draft'.",
+                quickWin: "Open a blank doc or draft window.",
+                taskSuggestions: [
+                    {
+                        title: "Draft the response",
+                        why: "Once the words are down, the anxiety of 'starting' disappears.",
+                        energyFit: "high",
+                        steps: ["Write 3 bullet points of info needed", "Flesh it out into sentences", "Hit send"]
+                    }
+                ]
+            };
+        }
+
+        // DEFAULT / GENERIC
+        return {
+            summary: "I've analyzed your dump. Let's turn this messy thought into concrete physical actions.",
+            recommendedFocus: "The very first step on the list.",
+            quickWin: "Take one deep breath and drink some water.",
+            taskSuggestions: [
                 {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
-                    },
-                    body: JSON.stringify(payload)
+                    title: "Start the task",
+                    why: "Action is the best antidote to overwhelm.",
+                    energyFit: "medium",
+                    steps: ["Prepare your space", "Work for 25 minutes (Pomodoro)", "Log your progress"]
                 }
-            );
-
-            const body = await response.json().catch(function() {
-                return null;
-            });
-
-            if (!response.ok) {
-                throw new Error(body && body.error ? body.error : 'Could not reach the planner.');
-            }
-
-            return body && body.result ? body.result : body;
-        }
-
-        throw new Error('AI planner is not configured yet.');
+            ]
+        };
     }
 
     function plannerErrorMessage(err) {

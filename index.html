@@ -1399,7 +1399,7 @@
         .debt-type-badge.credit-card { background: rgba(233,69,96,0.2); color: #d4849a; }
         .debt-type-badge.medical { background: rgba(78,204,163,0.2); color: #b48db5; }
         .debt-type-badge.loan { background: rgba(255,204,0,0.2); color: #e8b84b; }
-        .debt-type-badge.bankruptcy { background: rgba(136,136,160,0.2); color: #9a8a92; }
+        .debt-type-badge.restructured { background: rgba(136,136,160,0.2); color: #9a8a92; }
 
         /* Budget waterfall — shows money flowing through buckets */
         .waterfall-row {
@@ -1574,7 +1574,7 @@
             letter-spacing: 0.5px;
         }
 
-        .kid-cat-badge.cat-self-harm { background: rgba(233,69,96,0.2); color: #d4849a; }
+        .kid-cat-badge.cat-emotional { background: rgba(233,69,96,0.2); color: #d4849a; }
         .kid-cat-badge.cat-school { background: rgba(255,204,0,0.2); color: #e8b84b; }
         .kid-cat-badge.cat-transitions { background: rgba(100,149,237,0.2); color: #6495ED; }
         .kid-cat-badge.cat-mood { background: rgba(186,85,211,0.2); color: #BA55D3; }
@@ -2129,14 +2129,30 @@
     </style>
     <!-- Assistant tab — self-contained pod -->
     <link rel="stylesheet" href="assistant.css">
+    <link rel="stylesheet" href="demo-interactions.css">
 </head>
 <body>
 <!-- DEMO MODE BANNER -->
 <div id="demo-banner" style="position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(90deg,#8b4a6b,#6b3a85);color:#fff;padding:8px 14px;text-align:center;font-family:'Lexend',sans-serif;font-size:13px;font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,0.4);border-bottom:1px solid rgba(255,255,255,0.2);">
-    DEMO MODE — fake data, nothing saves to the cloud.
-    <button onclick="if(confirm('Reset demo back to fresh fake data?')){localStorage.clear();location.reload();}" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:#fff;padding:3px 10px;margin-left:12px;border-radius:4px;cursor:pointer;font-size:12px;">Reset Demo</button>
+    DEMO MODE — nothing saves to the cloud.
+    <button onclick="seedSampleData()" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:#fff;padding:3px 10px;margin-left:10px;border-radius:4px;cursor:pointer;font-size:12px;">Sample Data</button>
+    <button onclick="if(confirm('Reset to blank slate?')){localStorage.clear();location.reload();}" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:#fff;padding:3px 10px;margin-left:6px;border-radius:4px;cursor:pointer;font-size:12px;">Reset</button>
 </div>
-<style>body{padding-top:38px !important;}</style>
+<script>
+(function(){
+    var b=document.getElementById('demo-banner');
+    function fix(){
+        var h=b.offsetHeight;
+        document.body.style.paddingTop=h+'px';
+        var dog=document.querySelector('.corner-dog');
+        var wand=document.querySelector('.magic-wand');
+        if(dog) dog.style.top=(h+4)+'px';
+        if(wand) wand.style.top=(h+4)+'px';
+    }
+    requestAnimationFrame(fix);
+    window.addEventListener('resize',fix);
+})();
+</script>
 
     <!-- ====== CORNER DOG — little buddy who lives on your dashboard ====== -->
     <div class="corner-dog" title="Good boy. 🐾">🐶</div>
@@ -2533,7 +2549,7 @@
                 <!-- Filter buttons -->
                 <div class="kid-filter-btns" style="margin-top:10px;">
                     <button class="kid-filter-btn active" data-filter="all" onclick="filterKidLogs('all', this)">All</button>
-                    <button class="kid-filter-btn" data-filter="self-harm" onclick="filterKidLogs('self-harm', this)">Self-harm</button>
+                    <button class="kid-filter-btn" data-filter="emotional" onclick="filterKidLogs('emotional', this)">Emotional</button>
                     <button class="kid-filter-btn" data-filter="school" onclick="filterKidLogs('school', this)">School</button>
                     <button class="kid-filter-btn" data-filter="transitions" onclick="filterKidLogs('transitions', this)">Transitions</button>
                     <button class="kid-filter-btn" data-filter="mood" onclick="filterKidLogs('mood', this)">Mood</button>
@@ -2548,7 +2564,7 @@
                 <button class="finance-add-btn" onclick="openKidForm()">+ Log Behavior</button>
 
                 <!-- Export button -->
-                <button class="kid-export-btn" onclick="exportKidLog()">Copy Log to Clipboard (court-ready format)</button>
+                <button class="kid-export-btn" onclick="exportKidLog()">Copy Log to Clipboard</button>
             </div>
         </div>
 
@@ -2740,7 +2756,7 @@
                         <!-- FIXED bucket -->
                         <div style="background:#1a1216; border-radius:10px; padding:14px; border-left:3px solid #d4849a;">
                             <div style="font-size:11px; color:#d4849a; text-transform:uppercase; letter-spacing:1px; font-weight:600; margin-bottom:4px;">Fixed</div>
-                            <div style="font-size:10px; color:#9a8a92; margin-bottom:8px;">Mortgage, utilities, insurance, court. Auto-pay only.</div>
+                            <div style="font-size:10px; color:#9a8a92; margin-bottom:8px;">Bills, subscriptions, and obligations. Auto-pay only.</div>
                             <div style="font-size:24px; font-weight:700; color:#d4ccc8;" id="bucket-fixed-balance">$0</div>
                             <div style="font-size:11px; color:#9a8a92; margin-top:4px;" id="bucket-fixed-needed">Needed: $0</div>
                             <div style="width:100%; height:6px; background:#3d2f35; border-radius:3px; margin-top:6px; overflow:hidden;">
@@ -2985,10 +3001,12 @@
         <div class="card full-width">
             <h2>Calendar</h2>
             <div style="border-radius: 8px; overflow: hidden; background: #1a1216;">
-                <iframe src="https://calendar.google.com/calendar/embed?src=petdevo%40gmail.com&ctz=America%2FChicago&showTitle=0&showNav=1&showPrint=0&showTabs=1&showCalendars=0&mode=WEEK" style="border: 0; width: 100%; height: 500px; filter: invert(0.88) hue-rotate(180deg);" frameborder="0" scrolling="no"></iframe>
+                <div style="height: 220px; display:grid; place-items:center; padding:24px; color:#9a8a92; text-align:center;">
+                    Connect or embed your own calendar here.
+                </div>
             </div>
             <p style="font-size: 11px; color: #6b5660; margin-top: 6px;">
-                Add/edit events in Google Calendar — they show up here automatically.
+                Add your calendar link or use this space for upcoming events.
             </p>
         </div>
 
@@ -3006,48 +3024,45 @@
             </div>
         </div>
 
-        <!-- -------- ANIMALS -------- -->
+        <!-- -------- CARE TASKS -------- -->
         <div class="card">
-            <h2>Animals</h2>
+            <h2>Care Tasks</h2>
             <div class="todo-item">
-                <input type="checkbox"> <span>Dogs — AM feed + out</span>
+                <input type="checkbox"> <span>Morning care task</span>
             </div>
             <div class="todo-item">
-                <input type="checkbox"> <span>Dogs — PM feed + out</span>
+                <input type="checkbox"> <span>Afternoon care task</span>
             </div>
             <div class="todo-item">
-                <input type="checkbox"> <span>Rabbits — hay + water</span>
+                <input type="checkbox"> <span>Evening care task</span>
             </div>
             <div class="todo-item">
-                <input type="checkbox"> <span>Cat — feed</span>
-            </div>
-            <div class="todo-item">
-                <input type="checkbox"> <span>Fish tanks — check</span>
+                <input type="checkbox"> <span>Optional care task</span>
             </div>
         </div>
 
-        <!-- -------- PARENTS -------- -->
+        <!-- -------- CONTACTS -------- -->
         <div class="card">
-            <h2 class="collapsible" onclick="toggleSection('parents-content', this)">Parents</h2>
-            <div class="collapsible-content" id="parents-content">
+            <h2 class="collapsible" onclick="toggleSection('contacts-content', this)">Contacts</h2>
+            <div class="collapsible-content" id="contacts-content">
                 <div class="item">
-                    <span class="label">Mom</span>
+                    <span class="label">Contact A</span>
                     <span class="value">—</span>
                 </div>
                 <div class="item">
-                    <span class="label">Dad</span>
+                    <span class="label">Contact B</span>
                     <span class="value">—</span>
                 </div>
-                <textarea class="note-box" rows="2" placeholder="Parent notes..."></textarea>
+                <textarea class="note-box" rows="2" placeholder="Contact notes..."></textarea>
             </div>
         </div>
 
-        <!-- -------- LEGAL -------- -->
+        <!-- -------- DOCUMENTS -------- -->
         <div class="card">
-            <h2 class="collapsible" onclick="toggleSection('legal-content', this)">Legal — tap to expand</h2>
-            <div class="collapsible-content" id="legal-content">
+            <h2 class="collapsible" onclick="toggleSection('documents-content', this)">Documents — tap to expand</h2>
+            <div class="collapsible-content" id="documents-content">
                 <div class="item">
-                    <span class="label">Next Court Date</span>
+                    <span class="label">Next Deadline</span>
                     <span class="value">—</span>
                 </div>
                 <div class="item">
@@ -3055,10 +3070,10 @@
                     <span class="value">—</span>
                 </div>
                 <div class="item">
-                    <span class="label">Bankruptcy Status</span>
+                    <span class="label">Status</span>
                     <span class="value">—</span>
                 </div>
-                <textarea class="note-box" rows="2" placeholder="Legal notes..."></textarea>
+                <textarea class="note-box" rows="2" placeholder="Document notes..."></textarea>
             </div>
         </div>
 
@@ -3126,7 +3141,7 @@
 
                 <label>Category</label>
                 <select class="finance-input" id="kf-category">
-                    <option value="self-harm">Self-harm</option>
+                    <option value="emotional">Emotional</option>
                     <option value="school">School</option>
                     <option value="transitions">Transitions</option>
                     <option value="mood">Mood</option>
@@ -3145,8 +3160,8 @@
 
                 <label>Location</label>
                 <select class="finance-input" id="kf-location">
-                    <option value="mom">Mom's house</option>
-                    <option value="dad">Dad's house</option>
+                    <option value="home-a">Home A</option>
+                    <option value="home-b">Home B</option>
                     <option value="school">School</option>
                     <option value="other">Other</option>
                 </select>
@@ -4139,28 +4154,23 @@
         let finSpending = loadData('fin_spending') || [];
         let finEmergencyFund = loadData('fin_emergency') || { goal: 0, current: 0 };
 
-        // --- SINKING FUNDS — small savings pools for irregular expenses ---
-        // Car repair / Medical / Animals — each gets $50/paycheck until funded
-        let sinkingFunds = loadData('sinking_funds') || [
-            { id: 'car',     name: '🚗 Car Repair', goal: 2000, balance: 0, perPaycheck: 50 },
-            { id: 'medical', name: '💊 Medical',     goal: 500,  balance: 0, perPaycheck: 50 },
-            { id: 'animals', name: '🐾 Animals',     goal: 500,  balance: 0, perPaycheck: 50 },
-        ];
+        // --- SINKING FUNDS — user-defined savings pools for irregular expenses ---
+        let sinkingFunds = loadData('sinking_funds') || [];
 
         // --- BUCKET SYSTEM DATA (loaded early so everything can use it) ---
         let buckets = loadData('buckets') || {
             fixed: { balance: 0, needed: 0 },
-            safety: { balance: 0, goal: 1000 },
-            life: { balance: 0, budgetPerPaycheck: 400 },
-            dopamine: { balance: 0, budgetPerPaycheck: 150 }
+            safety: { balance: 0, goal: 0 },
+            life: { balance: 0, budgetPerPaycheck: 0 },
+            dopamine: { balance: 0, budgetPerPaycheck: 0 }
         };
 
         let bucketSettings = loadData('bucket_settings') || {
-            safetyAmount: 50,
-            lifeBudget: 400,
-            dopamineBudget: 150,
-            cashWithdraw: 40,
-            nextPayday: '2026-03-06',
+            safetyAmount: 0,
+            lifeBudget: 0,
+            dopamineBudget: 0,
+            cashWithdraw: 0,
+            nextPayday: new Date().toISOString().split('T')[0],
             payFrequency: 14
         };
 
@@ -4603,7 +4613,7 @@
             const checking = getAccountByType('Checking');
             if (!checking || typeof checking.availableBalance !== 'number') {
                 if (intro) intro.textContent = 'Bank sync is temporarily paused.';
-                wrap.innerHTML = '<div class="bank-snapshot-card" style="grid-column:1 / -1;"><div class="bank-snapshot-note">Bank sync is now local-only. Your laptop will read SimpleFIN and push planning numbers here once the new system is set up. This will happen during Phase 2.</div></div>';
+                wrap.innerHTML = '<div class="bank-snapshot-card" style="grid-column:1 / -1;"><div class="bank-snapshot-note">Bank sync is local-only in this demo. Add an account balance manually, or connect your own data source later.</div></div>';
                 return;
             }
 
@@ -4631,7 +4641,7 @@
               + '<div class="bank-snapshot-card pending-card">'
               +   '<div class="bank-snapshot-label">Card Stuff In Motion</div>'
               +   '<div class="bank-snapshot-value pending-value">' + fmt$(pending) + '</div>'
-              +   '<div class="bank-snapshot-note">' + pendingCount + ' card charge' + (pendingCount === 1 ? '' : 's') + ' still moving through that SimpleFIN can already see.</div>'
+              +   '<div class="bank-snapshot-note">' + pendingCount + ' card charge' + (pendingCount === 1 ? '' : 's') + ' still moving through the bank feed.</div>'
               + '</div>'
               + '<div class="bank-snapshot-card manual-card">'
               +   '<div class="bank-snapshot-label">Money Already Spoken For</div>'
@@ -5093,12 +5103,12 @@
 
         // Tap the amount on a sinking fund to update its balance
         // --- SET MANUAL PENDING ACH ---
-        // For ACH transfers / checks SimpleFIN can't see yet (e.g. lawyer retainer check)
+        // For ACH transfers / checks the bank feed cannot see yet
         function setManualPending() {
             const current = parseFloat(loadData('manual_pending') || '0');
             const input = prompt(
                 'How much have you sent out that hasn\'t cleared the bank yet?\n' +
-                '(ACH transfers, checks, payments SimpleFIN doesn\'t know about)\n\n' +
+                '(ACH transfers, checks, or payments not reflected yet)\n\n' +
                 'Enter 0 when everything has cleared.',
                 current.toFixed(2)
             );
@@ -5320,7 +5330,7 @@
                     stratDetail.textContent = 'Pay minimums on everything else, throw extra cash at "' + highest.name + '" first — saves the most in interest. Snowball alternative: attack "' + smallest.name + '" (' + fmt$(smallest.currentBalance) + ') first for a quick win.';
                 } else {
                     stratText.textContent = '🎯 No interest on your debts — just pay them down steadily';
-                    stratDetail.textContent = 'Since none of your debts have interest (medical, bankruptcy), order doesn\'t matter as much. Focus on the smallest balance for quick wins.';
+                    stratDetail.textContent = 'Since none of your debts have interest, order does not matter as much. Focus on the smallest balance for quick wins.';
                 }
                 stratEl.style.display = 'flex';
             } else {
@@ -5886,7 +5896,7 @@
                         <option value="yes">Yes — auto-deducted</option>
                     </select>
                     <label>Paid by someone else? (leave blank if you pay it)</label>
-                    <input class="finance-input" id="ff-paidby" placeholder="e.g. Mom, Ex, etc.">
+                    <input class="finance-input" id="ff-paidby" placeholder="Optional note, source, or account">
                 `;
             } else if (type === 'income') {
                 title.textContent = editingId ? 'Edit Income' : 'Add Income';
@@ -5912,7 +5922,7 @@
                     <label>What was it?</label>
                     <input class="finance-input" id="ff-name" placeholder="e.g. Groceries, Gas, Dog food">
                     <label>Amount ($) — positive = money in, negative = money out</label>
-                    <input class="finance-input" id="ff-amount" type="number" step="0.01" placeholder="-25.00">
+                    <input class="finance-input" id="ff-amount" type="number" step="0.01" placeholder="0.00">
                     <label>Category</label>
                     <select class="finance-input" id="ff-category">
                         <option value="Groceries">Groceries</option>
@@ -5937,19 +5947,19 @@
                         <option value="Credit Card">Credit Card</option>
                         <option value="Medical">Medical Debt</option>
                         <option value="Loan">Loan (car, personal, student)</option>
-                        <option value="Bankruptcy">Bankruptcy / Restructured</option>
+                        <option value="Restructured">Restructured</option>
                         <option value="Collections">Collections</option>
                         <option value="Other">Other</option>
                     </select>
                     <label>Current Balance ($) — what you owe right now</label>
-                    <input class="finance-input" id="ff-amount" type="number" step="0.01" placeholder="2500.00">
+                    <input class="finance-input" id="ff-amount" type="number" step="0.01" placeholder="0.00">
                     <label>Original Balance ($) — what it started at (for progress tracking)</label>
                     <input class="finance-input" id="ff-original" type="number" step="0.01" placeholder="Same as current if new">
                     <label>Interest Rate (APR %) — put 0 if no interest</label>
-                    <input class="finance-input" id="ff-apr" type="number" step="0.01" placeholder="24.99" value="0">
-                    <p style="font-size:11px; color:#9a8a92; margin-top:-6px; margin-bottom:8px;">Medical debt and bankruptcy are usually 0%. Credit cards are usually 20-30%.</p>
+                    <input class="finance-input" id="ff-apr" type="number" step="0.01" placeholder="0.00" value="0">
+                    <p style="font-size:11px; color:#9a8a92; margin-top:-6px; margin-bottom:8px;">Use the actual APR if known, or 0 if there is no interest.</p>
                     <label>Minimum Monthly Payment ($)</label>
-                    <input class="finance-input" id="ff-min-payment" type="number" step="0.01" placeholder="35.00">
+                    <input class="finance-input" id="ff-min-payment" type="number" step="0.01" placeholder="0.00">
                     <label>Payment Due Date (day of month)</label>
                     <input class="finance-input" id="ff-date" placeholder="e.g. 15th" value="">
                     <label>Notes (optional)</label>
@@ -5965,7 +5975,7 @@
                     <input class="finance-input" id="ff-ef-current" type="number" step="0.01" placeholder="0.00" value="${finEmergencyFund.current || 0}">
                     <label>What's your goal? (recommended: 3 months of expenses)</label>
                     <input class="finance-input" id="ff-ef-goal" type="number" step="0.01" placeholder="${threeMonths.toFixed(2)}" value="${finEmergencyFund.goal || ''}">
-                    <p style="font-size:12px; color:#9a8a92; margin-top:4px;">Based on your bills + debt minimums, 3 months = ${fmt$(threeMonths)}. Even $500-$1000 is a great start.</p>
+                    <p style="font-size:12px; color:#9a8a92; margin-top:4px;">Based on your bills + debt minimums, 3 months = ${fmt$(threeMonths)}. Set the goal that fits your situation.</p>
                 `;
             }
 
@@ -6353,7 +6363,7 @@
             document.getElementById('kf-desc').value = '';
             document.getElementById('kf-category').value = 'mood';
             document.getElementById('kf-severity').value = '2';
-            document.getElementById('kf-location').value = 'mom';
+            document.getElementById('kf-location').value = 'home-a';
             // Focus the description field
             setTimeout(() => document.getElementById('kf-desc').focus(), 100);
         }
@@ -6412,7 +6422,7 @@
 
         // --- Location label helper ---
         function locationLabel(loc) {
-            const labels = { mom: "Mom's house", dad: "Dad's house", school: 'School', other: 'Other' };
+            const labels = { 'home-a': 'Home A', 'home-b': 'Home B', school: 'School', other: 'Other' };
             return labels[loc] || loc;
         }
 
@@ -6466,7 +6476,7 @@
             }
         }
 
-        // --- Export kid log to clipboard (court-ready plain text) ---
+        // --- Export tracker log to clipboard ---
         function exportKidLog() {
             if (kidLogs.length === 0) { alert('No entries to export.'); return; }
             const sorted = [...kidLogs].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
@@ -6814,7 +6824,7 @@
             title.textContent = '💰 Log Paycheck';
             fields.innerHTML = `
                 <label>Net amount (what hit your bank account)</label>
-                <input class="finance-input" id="ff-paycheck-amount" type="number" step="0.01" placeholder="2100.00">
+                <input class="finance-input" id="ff-paycheck-amount" type="number" step="0.01" placeholder="0.00">
 
                 <label>Date received</label>
                 <input class="finance-input" id="ff-paycheck-date" type="date" value="${todayStr}">
@@ -7095,7 +7105,7 @@
 
             // Life bucket
             document.getElementById('bucket-life-balance').textContent = fmt$(buckets.life.balance);
-            const lifeMax = bucketSettings.lifeBudget || 400;
+            const lifeMax = Number.isFinite(Number(bucketSettings.lifeBudget)) ? Number(bucketSettings.lifeBudget) : 0;
             const lifePct = lifeMax > 0 ? Math.min(100, (buckets.life.balance / lifeMax) * 100) : 0;
             document.getElementById('bucket-life-bar').style.width = lifePct + '%';
             document.getElementById('bucket-life-bar').style.background = lifePct < 10 ? '#d4849a' : lifePct < 25 ? '#e8b84b' : '#e8b84b';
@@ -7113,7 +7123,7 @@
 
             // Dopamine bucket
             document.getElementById('bucket-dopamine-balance').textContent = fmt$(buckets.dopamine.balance);
-            const dopMax = bucketSettings.dopamineBudget || 150;
+            const dopMax = Number.isFinite(Number(bucketSettings.dopamineBudget)) ? Number(bucketSettings.dopamineBudget) : 0;
             const dopPct = dopMax > 0 ? Math.min(100, (buckets.dopamine.balance / dopMax) * 100) : 0;
             document.getElementById('bucket-dopamine-bar').style.width = dopPct + '%';
             document.getElementById('bucket-dopamine-bar').style.background = dopPct < 10 ? '#d4849a' : '#BA55D3';
@@ -7170,8 +7180,6 @@
         // --- BILL DATA NORMALIZER (runs every page load — safe to repeat) ---
         // No flags needed. Just makes sure every bill has the right fields.
         function runBillMigrations() {
-            // One-time: clear old automation run flag so fixed autopay code runs fresh
-            // (v2.1 fixed autopay to not deduct from balance)
             if (!loadData('automation_fix_v2_1')) {
                 localStorage.removeItem('mc_last_auto_run');
                 saveData('automation_fix_v2_1', true);
@@ -7194,201 +7202,6 @@
                     changed = true;
                 }
             });
-
-            // Step 2: Make sure amounts match real SimpleFIN data
-            // (the preloaded amounts were guesses — these are confirmed from bank)
-            const realData = {
-                'mortgage': { day: 12, amount: 1417.68 },
-                'bcbs': { day: 20, amount: 427.21 },
-                'delta dental': { day: 6, amount: 96.60 },
-                'verizon': { day: 2, amount: 403.19 },
-                'allo': { day: 1, amount: 174.40 },
-                'les electric': { day: 21, amount: 446.80 },
-                'black hills': { day: 11, amount: 202.27 },
-                'comn cap': { day: 7, amount: 45.00 },
-                'goodrx': { day: 30, amount: 9.99 },
-                'ne furniture': { day: 13, amount: 25.00 },
-                'tjx': { day: 9, amount: 50.00 },
-                'spotify': { day: 13, amount: 18.22 },
-                'netflix': { day: 9, amount: 19.29 },
-                'disney': { day: 22, amount: 32.19 },
-                'adobe': { day: 10, amount: 32.16 },
-                'audible': { day: 1, amount: 16.03 },
-                'chatgpt': { day: 30, amount: 20.00 },
-                'claude': { day: 11, amount: 25.00 },
-                'appclose': { day: 10, amount: 6.99 },
-                'rocket car': { day: 28, amount: 10.71 },
-                'canva': { day: 31, amount: 15.00 }
-            };
-            const now = new Date();
-            const thisMonth = now.getMonth();
-            const thisYear = now.getFullYear();
-            finBills.forEach(b => {
-                const name = b.name.toLowerCase();
-                for (const [key, data] of Object.entries(realData)) {
-                    // For short keys like 'ent', require exact match (not just includes)
-                    const matches = data.exact ? (name === key) : name.includes(key);
-                    if (matches) {
-                        // Always correct the amount to real data
-                        if (b.amount !== data.amount) {
-                            b.amount = data.amount;
-                            changed = true;
-                        }
-                        // Set due date — always this month for the bill's natural day
-                        {
-                            const maxDay = new Date(thisYear, thisMonth + 1, 0).getDate();
-                            const day = Math.min(data.day, maxDay);
-                            const correctDate = thisYear + '-' + String(thisMonth + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
-                            if (b.dueDate !== correctDate) {
-                                b.dueDate = correctDate;
-                                changed = true;
-                            }
-                        }
-                        break;
-                    }
-                }
-            });
-
-            // Step 2b: February 2026 status correction (from SimpleFIN transaction analysis)
-            // These are the REAL statuses based on what actually posted to WF checking
-            if (!loadData('feb_status_fix_v1')) {
-                const febStatuses = {
-                    // PROCESSED — confirmed posted to WF checking (with actual dates)
-                    'mortgage':    { s: 'processed', d: '2026-02-10' },
-                    'bcbs':        { s: 'processed', d: '2026-02-20' },
-                    'les electric':{ s: 'processed', d: '2026-02-21' },
-                    'delta dental':{ s: 'processed', d: '2026-02-06' },
-                    'disney':      { s: 'processed', d: '2026-02-22' },
-                    'spotify':     { s: 'processed', d: '2026-02-13' },
-                    'ne furniture':{ s: 'processed', d: '2026-02-13' },
-                    'adobe':       { s: 'processed', d: '2026-02-10' },
-                    'appclose':    { s: 'processed', d: '2026-02-09' },
-                    'netflix':     { s: 'processed', d: '2026-02-09' },
-                    'tjx':         { s: 'processed', d: '2026-02-09' },
-                    'comn cap':    { s: 'processed', d: '2026-02-06' },
-                    'canva':       { s: 'processed', d: '2026-02-02' },
-                    'audible':     { s: 'processed', d: '2026-02-01' },
-                    'goodrx':      { s: 'processed', d: '2026-02-02' },
-                    'chatgpt':     { s: 'processed', d: '2026-02-02' },
-                    'claude':      { s: 'processed', d: '2026-02-10' },
-                    'rocket car':  { s: 'processed', d: '2026-02-02' },
-                    // PROCESSED — paid on Southwest credit card
-                    'verizon':     { s: 'processed', d: '2026-02-24' },
-                    // PENDING — authorized but not posted as of 2/24
-                    'black hills': { s: 'pending', d: '2026-02-24' },
-                    'allo':        { s: 'pending', d: '2026-02-24' }
-                };
-                finBills.forEach(b => {
-                    const name = b.name.toLowerCase();
-                    for (const [key, val] of Object.entries(febStatuses)) {
-                        if (name.includes(key)) {
-                            b.status = val.s;
-                            b.paid = (val.s !== 'unpaid');
-                            if (val.d) b.paidDate = val.d;
-                            b.paidAmount = b.amount;
-                            if (val.s === 'processed') {
-                                b.paidBy = (key === 'verizon') ? 'Southwest card' : 'WF checking';
-                            } else if (val.s === 'pending') {
-                                b.paidBy = 'WF checking';
-                            }
-                            changed = true;
-                            break;
-                        }
-                    }
-                });
-                // Also set automation flags so monthly reset doesn't undo this
-                const curMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-                saveData('last_bill_reset_month', curMonth);
-                saveData('last_auto_run', now.toISOString().split('T')[0]);
-                saveData('feb_status_fix_v1', true);
-            }
-
-            // Step 2c: Remove bills we're setting aside for now
-            // (Oceans Dental, Apple combined, ENT, Google, Microsoft, Johnson Chiro)
-            if (!loadData('bill_cleanup_v1')) {
-                const removeBills = ['oceans', 'apple (combined)', 'ent', 'google', 'microsoft', 'johnson'];
-                const before = finBills.length;
-                finBills = finBills.filter(b => {
-                    const name = b.name.toLowerCase();
-                    // Exact match for 'ent' (3 chars), includes for others
-                    return !removeBills.some(rm => rm === 'ent' ? name === 'ent' : name.includes(rm));
-                });
-                if (finBills.length !== before) {
-                    saveData('fin_bills', finBills);
-                    changed = true;
-                }
-                saveData('bill_cleanup_v1', true);
-            }
-
-            // Step 2d: Remove Arnie's (variable expense) and Psychotherapy (on hold)
-            if (!loadData('bill_cleanup_v2')) {
-                const removeBills2 = ['arnie', 'psychotherapy'];
-                const before2 = finBills.length;
-                finBills = finBills.filter(b => {
-                    const name = b.name.toLowerCase();
-                    return !removeBills2.some(rm => name.includes(rm));
-                });
-                if (finBills.length !== before2) {
-                    saveData('fin_bills', finBills);
-                    changed = true;
-                }
-                saveData('bill_cleanup_v2', true);
-            }
-
-            // Step 2e: Add missing bills — water (quarterly) and SimpleFIN (monthly)
-            if (!loadData('bill_additions_v1')) {
-                const mkId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-                const hasWater = finBills.some(b => b.name.toLowerCase().includes('water'));
-                if (!hasWater) {
-                    finBills.push({
-                        id: mkId(),
-                        name: 'City Water & Sewer',
-                        amount: 85.00,       // PLACEHOLDER — update when bill arrives
-                        dueDate: '2026-05-15', // PLACEHOLDER — quarterly, update with real date
-                        recurring: 'quarterly',
-                        category: 'Utilities',
-                        status: 'unpaid',
-                        autoPay: false,
-                        paidBy: 'checking',
-                        notes: 'Quarterly bill — update amount and due date when it arrives'
-                    });
-                    changed = true;
-                }
-                const hasSimpleFIN = finBills.some(b => b.name.toLowerCase().includes('simplefin'));
-                if (!hasSimpleFIN) {
-                    finBills.push({
-                        id: mkId(),
-                        name: 'SimpleFIN',
-                        amount: 1.50,
-                        dueDate: '2026-03-15', // PLACEHOLDER — update with real charge date
-                        recurring: 'monthly',
-                        category: 'Subscriptions',
-                        status: 'unpaid',
-                        autoPay: true,
-                        paidBy: 'checking'
-                    });
-                    changed = true;
-                }
-                saveData('bill_additions_v1', true);
-            }
-
-            // Step 3: Set account balances to last known real SimpleFIN values
-            // ONE-TIME only — only runs if balances have never been fetched from a real source.
-            // fetchBankBalances() will overwrite these with real data from cloud or local server.
-            if (!loadData('balance_init_v1')) {
-                const checking = finAccounts.find(a => a.type === 'Checking' || (a.name && a.name.toLowerCase().includes('checking')));
-                if (checking && checking.balance === 0) {
-                    checking.balance = 856.60;
-                }
-                const savings = finAccounts.find(a => a.type === 'Savings' || (a.name && a.name.toLowerCase().includes('saving')));
-                if (savings && savings.balance === 0) {
-                    savings.balance = 57.11;
-                }
-                if (finAccounts.length > 0) {
-                    saveData('fin_accounts', finAccounts);
-                }
-                saveData('balance_init_v1', true);
-            }
 
             if (changed) saveData('fin_bills', finBills);
         }
@@ -7596,13 +7409,18 @@
                 return;
 
             } else if (currentFormType === 'bucket_settings') {
-                bucketSettings.safetyAmount = parseFloat(document.getElementById('ff-bs-safety').value) || 50;
-                bucketSettings.lifeBudget = parseFloat(document.getElementById('ff-bs-life').value) || 400;
-                bucketSettings.dopamineBudget = parseFloat(document.getElementById('ff-bs-dopamine').value) || 150;
-                bucketSettings.cashWithdraw = parseFloat(document.getElementById('ff-bs-cash').value) || 40;
+                const safetyAmount = parseFloat(document.getElementById('ff-bs-safety').value);
+                const lifeBudget = parseFloat(document.getElementById('ff-bs-life').value);
+                const dopamineBudget = parseFloat(document.getElementById('ff-bs-dopamine').value);
+                const cashWithdraw = parseFloat(document.getElementById('ff-bs-cash').value);
+                bucketSettings.safetyAmount = Number.isFinite(safetyAmount) ? safetyAmount : 0;
+                bucketSettings.lifeBudget = Number.isFinite(lifeBudget) ? lifeBudget : 0;
+                bucketSettings.dopamineBudget = Number.isFinite(dopamineBudget) ? dopamineBudget : 0;
+                bucketSettings.cashWithdraw = Number.isFinite(cashWithdraw) ? cashWithdraw : 0;
                 bucketSettings.nextPayday = document.getElementById('ff-bs-nextpay').value || bucketSettings.nextPayday;
                 bucketSettings.payFrequency = parseInt(document.getElementById('ff-bs-freq').value) || 14;
-                buckets.safety.goal = parseFloat(document.getElementById('ff-bs-safety-goal').value) || 1000;
+                const safetyGoal = parseFloat(document.getElementById('ff-bs-safety-goal').value);
+                buckets.safety.goal = Number.isFinite(safetyGoal) ? safetyGoal : 0;
                 saveBuckets();
                 document.getElementById('fin-form-overlay').classList.remove('show');
                 currentFormType = null;
@@ -8083,6 +7901,7 @@
 
     <!-- Assistant pod — all task management logic -->
     <script src="assistant.js"></script>
+    <script src="demo-interactions.js"></script>
 
     <!-- DEMO MODE — Service worker disabled so demo always loads fresh -->
     <script>
