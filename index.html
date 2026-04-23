@@ -7369,7 +7369,7 @@
                 const hrs = Math.round((Date.now() - new Date(lastFetch).getTime()) / 3600000);
                 if (hrs >= 6) {
                     const src = loadData('bank_data_source') === 'cloud' ? 'cloud sync' : 'PC server';
-                    setStatus('info', 'Bank data ' + hrs + 'h old (last from ' + src + ') — will refresh when online');
+                    // setStatus('info', 'Bank data ' + hrs + 'h old (last from ' + src + ') — will refresh when online'); // Demo: removed staleness warning
                 }
             } else if (manual) {
                 setStatus('error', 'Could not refresh bank data right now.');
