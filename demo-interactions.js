@@ -776,7 +776,7 @@
                 'Buckle up, buttercup 🌪️',
                 'Reality check incoming 💫',
                 'Shake things up! 🎪',
-                'Let's get weird 🌀',
+                'Let\'s get weird 🌀',
                 'Surprise test drive! 🎢',
                 'Cast a vibe shift ✨'
             ];
