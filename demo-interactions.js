@@ -542,7 +542,11 @@
             greeting.textContent = 'Win logged. Mission Control sees the effort, not just the output.';
         }
         sparkleFrom(q('.header h1') || document.body, 42);
-        demoToast('Win logged. Dopamine unlocked. ✨');
+
+        // Show what a task completion actually feels like — sparkles rain down
+        if (typeof celebrateTaskCompletion === 'function') {
+            celebrateTaskCompletion();
+        }
     }
 
     function seedSamples() {
