@@ -1,0 +1,1088 @@
+.ast-root {
+    --ast-bg: #1a1216;
+    --ast-card: #2a1f24;
+    --ast-border: #3d2f35;
+    --ast-accent: #d4849a;
+    --ast-text: #d4ccc8;
+    --ast-text-muted: #b1a2a9;
+    --ast-text-heading: #ffffff;
+    --ast-success: #9cbb8f;
+    --ast-warning: #d4a574;
+    --ast-danger: #b85c70;
+    --ast-sparkle: #c9b8d4;
+    color: var(--ast-text);
+    font-family: 'Lexend', sans-serif;
+}
+
+.ast-shell {
+    max-width: 600px;
+    margin: 0 auto;
+    display: grid;
+    gap: 16px;
+}
+
+.ast-card {
+    background: var(--ast-card);
+    border: 1px solid var(--ast-border);
+    border-left: 4px solid var(--ast-accent);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 8px rgba(212, 132, 154, 0.06);
+}
+
+.ast-card h2,
+.ast-section-title {
+    margin: 0 0 12px;
+    color: var(--ast-text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.1px;
+    text-transform: uppercase;
+}
+
+.ast-energy-hitbox {
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.ast-energy-bar {
+    position: relative;
+    width: 100%;
+    height: 28px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--ast-border);
+}
+
+.ast-energy-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: 14px;
+    background: linear-gradient(90deg, var(--ast-success), var(--ast-warning), var(--ast-danger));
+    transition: width 0.2s ease;
+}
+
+.ast-energy-meta {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ast-energy-value {
+    color: var(--ast-text-heading);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.ast-energy-label {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.ast-capture-blurb,
+.ast-capture-note,
+.ast-plan-status,
+.ast-plan-error,
+.ast-plan-text,
+.ast-plan-task-why,
+.ast-capture-toggle-meta {
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.ast-capture-blurb,
+.ast-capture-note,
+.ast-plan-status,
+.ast-capture-toggle-meta {
+    color: var(--ast-text-muted);
+}
+
+.ast-plan-summary {
+    margin-top: 4px;
+    padding: 12px 16px;
+    border-left: 3px solid var(--ast-accent);
+    background: rgba(26, 18, 22, 0.32);
+    border-radius: 4px;
+    color: var(--ast-text);
+    font-size: 15px;
+    font-style: italic;
+    line-height: 1.55;
+}
+
+.ast-plan-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ast-plan-chip {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    line-height: 1.4;
+    border: 1px solid rgba(154, 138, 146, 0.22);
+    background: rgba(26, 18, 22, 0.42);
+}
+
+.ast-plan-chip-focus {
+    border-color: var(--ast-accent);
+    background: rgba(212, 132, 154, 0.12);
+}
+
+.ast-plan-chip-win {
+    border-style: dashed;
+    border-color: rgba(154, 138, 146, 0.28);
+    background: transparent;
+}
+
+.ast-plan-chip-label {
+    padding-top: 1px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--ast-text-muted);
+}
+
+.ast-plan-chip-text {
+    color: var(--ast-text);
+}
+
+.ast-plan-task-why {
+    color: var(--ast-text-muted);
+}
+
+.ast-plan-expand-row {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.ast-plan-expand-btn {
+    font-size: 12px;
+    padding: 6px 12px;
+}
+
+.ast-plan-expanded {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-left: 3px solid var(--ast-accent);
+    background: rgba(26, 18, 22, 0.28);
+    border-radius: 4px;
+    display: grid;
+    gap: 8px;
+}
+
+.ast-plan-expanded-detail {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ast-text);
+}
+
+.ast-capture-input {
+    min-height: 132px;
+    margin-bottom: 12px;
+}
+
+.ast-capture-context,
+.ast-plan-output {
+    display: grid;
+    gap: 10px;
+}
+
+.ast-plan-task-list {
+    display: grid;
+    gap: 16px;
+}
+
+.ast-capture-toggle {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid rgba(154, 138, 146, 0.16);
+    border-radius: 10px;
+    background: rgba(26, 18, 22, 0.36);
+    cursor: pointer;
+}
+
+.ast-capture-toggle input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: var(--ast-accent);
+    flex: 0 0 auto;
+}
+
+.ast-capture-toggle-copy {
+    min-width: 0;
+    display: grid;
+    gap: 3px;
+}
+
+.ast-capture-toggle-title,
+.ast-plan-task-title {
+    color: var(--ast-text-heading);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.ast-capture-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.ast-plan-error {
+    margin-top: 12px;
+    color: var(--ast-danger);
+}
+
+.ast-plan-status {
+    margin-top: 12px;
+}
+
+.ast-plan-panel,
+.ast-plan-task-card {
+    border: 1px solid rgba(154, 138, 146, 0.16);
+    border-radius: 10px;
+    background: rgba(26, 18, 22, 0.36);
+    padding: 12px;
+}
+
+.ast-plan-label {
+    margin-bottom: 10px;
+    color: var(--ast-text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+
+.ast-plan-task-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.ast-plan-task-header > .ast-action-btn {
+    flex-shrink: 0;
+}
+
+.ast-plan-task-title-wrap {
+    min-width: 0;
+    flex: 1;
+}
+
+.ast-plan-task-meta {
+    margin-top: 4px;
+    color: var(--ast-text-muted);
+    font-size: 12px;
+}
+
+.ast-plan-task-why {
+    margin-top: 8px;
+}
+
+.ast-plan-step-list {
+    margin-top: 10px;
+}
+
+.ast-plan-step-list {
+    display: grid;
+    gap: 6px;
+}
+
+.ast-plan-step {
+    color: var(--ast-text);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.ast-top3-list,
+.ast-task-list {
+    display: grid;
+    gap: 10px;
+}
+
+.ast-focus-slot,
+.ast-task-row,
+.ast-picker-option {
+    min-height: 44px;
+}
+
+.ast-focus-task {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.ast-checkbox-btn,
+.ast-icon-btn {
+    border: 1px solid var(--ast-border);
+    background: var(--ast-bg);
+    color: var(--ast-text-muted);
+    border-radius: 999px;
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font: inherit;
+}
+
+.ast-checkbox-btn:hover,
+.ast-icon-btn:hover {
+    border-color: var(--ast-accent);
+    color: var(--ast-text-heading);
+}
+
+
+.ast-focus-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.ast-focus-title {
+    color: var(--ast-text-heading);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.35;
+    word-break: break-word;
+}
+
+.ast-focus-detail {
+    margin-top: 4px;
+    color: var(--ast-text-muted);
+    font-size: 13px;
+}
+
+.ast-empty-slot,
+.ast-add-card,
+.ast-placeholder-card {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 56px;
+    padding: 14px 16px;
+    border: 2px dashed var(--ast-border);
+    border-radius: 12px;
+    background: transparent;
+    color: var(--ast-text-muted);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font: inherit;
+}
+
+.ast-empty-slot:hover,
+.ast-add-card:hover {
+    border-color: var(--ast-accent);
+    color: var(--ast-text);
+}
+
+.ast-filter-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.ast-filter-pill,
+.ast-status-btn,
+.ast-action-btn,
+.ast-save-btn,
+.ast-cancel-btn {
+    min-height: 44px;
+    border-radius: 10px;
+    font-family: 'Lexend', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ast-filter-pill {
+    padding: 6px 14px;
+    border: 1px solid var(--ast-border);
+    background: transparent;
+    color: var(--ast-text-muted);
+    flex: 1;
+}
+
+.ast-filter-pill:hover {
+    border-color: var(--ast-accent);
+    color: var(--ast-text);
+}
+
+.ast-filter-pill.ast-active {
+    background: var(--ast-accent);
+    border-color: var(--ast-accent);
+    color: #fff;
+    font-weight: 600;
+}
+
+.ast-task-row {
+    border: 1px solid var(--ast-border);
+    border-radius: 12px;
+    background: var(--ast-card);
+    padding: 12px 16px;
+    transition: all 0.2s ease;
+}
+
+.ast-task-row.ast-overdue {
+    box-shadow: 0 0 8px rgba(248, 113, 113, 0.3);
+    border-color: rgba(248, 113, 113, 0.4);
+}
+
+.ast-task-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+}
+
+.ast-task-status {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+}
+
+.ast-status-not_started {
+    background: var(--ast-text-muted);
+}
+
+.ast-status-in_progress {
+    background: var(--ast-accent);
+}
+
+.ast-status-done {
+    background: var(--ast-success);
+}
+
+.ast-task-title-wrap {
+    flex: 1;
+    min-width: 0;
+}
+
+.ast-task-title {
+    color: var(--ast-text-heading);
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ast-task-row.ast-expanded .ast-task-title {
+    white-space: normal;
+}
+
+.ast-task-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ast-text-muted);
+    font-size: 13px;
+}
+
+.ast-task-chevron {
+    color: var(--ast-text-muted);
+    font-size: 18px;
+    line-height: 1;
+}
+
+.ast-task-body {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(154, 138, 146, 0.14);
+    display: grid;
+    gap: 12px;
+}
+
+.ast-task-description {
+    color: var(--ast-text-muted);
+    font-size: 14px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+}
+
+.ast-step-progress {
+    color: var(--ast-text-muted);
+    font-size: 13px;
+}
+
+.ast-step-list {
+    display: grid;
+    gap: 8px;
+}
+
+.ast-step-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ast-text);
+    font-size: 14px;
+}
+
+.ast-step-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--ast-accent);
+    flex: 0 0 auto;
+}
+
+.ast-step-text.ast-step-done {
+    color: var(--ast-text-muted);
+    text-decoration: line-through;
+}
+
+.ast-status-row,
+.ast-action-row,
+.ast-modal-actions,
+.ast-inline-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ast-status-btn,
+.ast-action-btn,
+.ast-save-btn,
+.ast-cancel-btn,
+.ast-picker-option {
+    padding: 10px 14px;
+    border: 1px solid var(--ast-border);
+    background: transparent;
+    color: var(--ast-text);
+}
+
+.ast-status-btn:hover,
+.ast-action-btn:hover,
+.ast-cancel-btn:hover,
+.ast-picker-option:hover {
+    border-color: var(--ast-accent);
+}
+
+.ast-status-btn:disabled,
+.ast-action-btn:disabled,
+.ast-save-btn:disabled,
+.ast-cancel-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ast-status-btn.ast-active[data-status="not_started"] {
+    background: var(--ast-text-muted);
+    border-color: var(--ast-text-muted);
+    color: #fff;
+}
+
+.ast-status-btn.ast-active[data-status="in_progress"] {
+    background: var(--ast-accent);
+    border-color: var(--ast-accent);
+    color: #fff;
+}
+
+.ast-status-btn.ast-active[data-status="done"] {
+    background: var(--ast-success);
+    border-color: var(--ast-success);
+    color: #fff;
+}
+
+.ast-action-btn.ast-primary,
+.ast-save-btn {
+    background: var(--ast-accent);
+    border-color: var(--ast-accent);
+    color: #fff;
+    font-weight: 600;
+}
+
+.ast-add-card {
+    margin-top: 4px;
+}
+
+.ast-placeholder-card {
+    cursor: default;
+    line-height: 1.5;
+}
+
+.ast-empty-state {
+    color: var(--ast-text-muted);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.ast-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.ast-modal,
+.ast-picker {
+    width: min(500px, 95vw);
+    max-height: min(90vh, 720px);
+    overflow-y: auto;
+    background: var(--ast-card);
+    border: 1px solid var(--ast-border);
+    border-left: 4px solid var(--ast-accent);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 8px rgba(212, 132, 154, 0.06);
+}
+
+.ast-modal-title {
+    margin: 0 0 16px;
+    color: var(--ast-text-heading);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.ast-field {
+    display: grid;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.ast-label {
+    color: var(--ast-text);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.ast-input,
+.ast-textarea,
+.ast-date-input {
+    width: 100%;
+    border: 1px solid var(--ast-border);
+    border-radius: 8px;
+    background: var(--ast-bg);
+    color: var(--ast-text);
+    padding: 10px 12px;
+    font: inherit;
+    font-size: 15px;
+}
+
+.ast-textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.ast-input:focus,
+.ast-textarea:focus,
+.ast-date-input:focus {
+    outline: none;
+    border-color: var(--ast-accent);
+    box-shadow: 0 0 0 3px rgba(212, 132, 154, 0.14);
+}
+
+.ast-input.ast-error {
+    border-color: var(--ast-danger);
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.14);
+}
+
+.ast-check-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ast-text);
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.ast-check-row input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--ast-accent);
+    flex: 0 0 auto;
+}
+
+.ast-step-builder {
+    display: grid;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.ast-thinking-prompts {
+    background: rgba(61, 47, 53, 0.3);
+    border-left: 3px solid var(--ast-accent);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: grid;
+    gap: 8px;
+}
+
+.ast-thinking-prompt {
+    color: var(--ast-text);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.ast-step-builder-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ast-prompts-dismiss {
+    justify-self: end;
+    border: 0;
+    background: transparent;
+    color: var(--ast-text-muted);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.ast-prompts-dismiss:hover {
+    color: var(--ast-text);
+}
+
+.ast-step-editor-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.ast-step-editor-row .ast-input {
+    flex: 1;
+}
+
+.ast-step-editor-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.ast-step-move {
+    min-width: 44px;
+}
+
+.ast-step-delete {
+    min-width: 44px;
+    min-height: 44px;
+}
+
+.ast-icon-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.ast-picker-title {
+    margin: 0 0 12px;
+    color: var(--ast-text-heading);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.ast-picker-list {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.ast-picker-option {
+    width: 100%;
+    text-align: left;
+    border-radius: 10px;
+    background: rgba(26, 18, 22, 0.4);
+}
+
+.ast-picker-title-row {
+    color: var(--ast-text-heading);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.ast-picker-detail-row {
+    margin-top: 4px;
+    color: var(--ast-text-muted);
+    font-size: 12px;
+}
+
+.ast-modal-actions {
+    margin-top: 18px;
+    justify-content: flex-end;
+}
+
+/* --- Briefing view --- */
+
+.ast-briefing-section {
+    border-left-color: var(--ast-accent);
+}
+
+.ast-briefing-header {
+    display: grid;
+    gap: 4px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.ast-briefing-greeting {
+    color: var(--ast-text-heading);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.ast-briefing-date {
+    color: var(--ast-text-muted);
+    font-size: 14px;
+}
+
+.ast-briefing-emoji {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 32px;
+    line-height: 1;
+}
+
+.ast-briefing-cards {
+    display: grid;
+    gap: 12px;
+}
+
+.ast-briefing-card {
+    display: block;
+    width: 100%;
+    border: 1px solid var(--ast-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    background: var(--ast-bg);
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.ast-briefing-card:hover {
+    border-color: var(--ast-accent);
+}
+
+.ast-briefing-main {
+    border-left: 4px solid var(--ast-accent);
+    padding: 18px 20px;
+}
+
+.ast-briefing-main .ast-briefing-title {
+    font-size: 18px;
+}
+
+.ast-briefing-small-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.ast-briefing-reason {
+    color: var(--ast-accent);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.ast-briefing-title {
+    color: var(--ast-text-heading);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.35;
+    word-break: break-word;
+}
+
+.ast-briefing-meta {
+    color: var(--ast-text-muted);
+    font-size: 13px;
+    margin-top: 6px;
+}
+
+.ast-briefing-progress {
+    margin-top: 10px;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--ast-border);
+    overflow: hidden;
+}
+
+.ast-briefing-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--ast-accent);
+    transition: width 0.2s ease;
+}
+
+.ast-briefing-empty {
+    color: var(--ast-text-muted);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.ast-briefing-view-all {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    padding: 10px;
+    border: 1px solid var(--ast-border);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--ast-text-muted);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.ast-briefing-view-all:hover {
+    border-color: var(--ast-accent);
+    color: var(--ast-text);
+}
+
+.ast-briefing-back {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--ast-accent);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: color 0.2s ease;
+}
+
+.ast-briefing-back:hover {
+    color: var(--ast-text-heading);
+}
+
+@media (max-width: 600px) {
+    .ast-root {
+        font-size: 14px;
+    }
+
+    .ast-shell {
+        gap: 14px;
+    }
+
+    .ast-card {
+        padding: 14px;
+    }
+
+    .ast-filter-row {
+        gap: 6px;
+    }
+
+    .ast-filter-pill {
+        flex: 1;
+    }
+
+    .ast-modal,
+    .ast-picker {
+        width: 95%;
+        padding: 18px;
+    }
+
+    .ast-action-row > *,
+    .ast-status-row > * {
+        flex: 1 1 calc(50% - 8px);
+    }
+
+    .ast-capture-actions > *,
+    .ast-plan-task-header > button {
+        flex: 1 1 100%;
+    }
+
+    .ast-plan-task-header {
+        grid-template-columns: 1fr;
+        display: grid;
+    }
+
+    .ast-briefing-small-row {
+        grid-template-columns: 1fr;
+    }
+
+    .ast-briefing-main .ast-briefing-title {
+        font-size: 16px;
+    }
+}
+
+/* Added-task success state */
+.ast-action-btn.ast-action-btn-done {
+    background: transparent;
+    border-color: var(--ast-success);
+    color: var(--ast-success);
+    cursor: default;
+    opacity: 0.85;
+}
+
+.ast-action-btn.ast-action-btn-done::before {
+    content: '✓ ';
+}
+
+/* Expand button icon */
+.ast-plan-expand-btn::before {
+    content: '+ ';
+    color: var(--ast-sparkle);
+    font-weight: 700;
+    margin-right: 2px;
+}
+
+.ast-plan-expand-btn.ast-plan-expand-btn-open::before {
+    content: '– ';
+}
+
+/* Small regenerate icon button inside an expanded box */
+.ast-plan-expanded-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.ast-plan-expanded-redo {
+    font-size: 11px;
+    padding: 4px 10px;
+    color: var(--ast-sparkle);
+    border-color: rgba(201, 184, 212, 0.35);
+    background: transparent;
+}
+
+.ast-plan-expanded-redo:hover {
+    border-color: var(--ast-sparkle);
+}
+
