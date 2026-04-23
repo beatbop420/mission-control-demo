@@ -845,8 +845,20 @@
             font-family: 'Lexend', sans-serif;
             border-radius: 4px;
             padding: 2px 4px;
+            font-style: italic;
+            opacity: 0.8;
+            transition: all 0.2s;
         }
-        .ecl-text:focus { background: #2a1e24; }
+        .ecl-text:hover { background: rgba(61, 47, 53, 0.5); opacity: 1; }
+        .ecl-text:focus { background: #2a1e24; opacity: 1; }
+        .ecl-title {
+            cursor: text;
+            border-bottom: 2px dashed #6b5660;
+            padding-bottom: 2px;
+            transition: all 0.2s;
+        }
+        .ecl-title:hover { border-color: #b48db5; color: #e8b84b; }
+        .ecl-title:focus { outline: none; border-color: #b48db5; background: rgba(61, 47, 53, 0.3); }
         .ecl-del {
             background: none;
             border: none;
@@ -3329,14 +3341,14 @@
 
         <!-- -------- MEDS -------- -->
         <div class="card">
-            <h2>Meds</h2>
+            <h2 class="ecl-title" contenteditable="true" data-ecl-key="meds" onblur="eclSaveTitle('meds')">Meds</h2>
             <div class="ecl-list" id="ecl-meds"></div>
             <button class="ecl-add-btn" onclick="eclAdd('meds')">+ Add item</button>
         </div>
 
         <!-- -------- DAILY CARE -------- -->
         <div class="card">
-            <h2>Daily Care</h2>
+            <h2 class="ecl-title" contenteditable="true" data-ecl-key="care" onblur="eclSaveTitle('care')">Daily Care</h2>
             <div class="ecl-list" id="ecl-care"></div>
             <button class="ecl-add-btn" onclick="eclAdd('care')">+ Add item</button>
         </div>
@@ -6555,6 +6567,25 @@
             eclRender(key);
         }
 
+        function eclSaveTitle(key) {
+            const titleEl = document.querySelector('.ecl-title[data-ecl-key="' + key + '"]');
+            if (titleEl) {
+                saveData('ecl_title_' + key, titleEl.textContent.trim());
+            }
+        }
+
+        function eclLoadTitle(key) {
+            const saved = loadData('ecl_title_' + key);
+            return saved || (key === 'meds' ? 'Meds' : 'Daily Care');
+        }
+
+        function eclRenderTitle(key) {
+            const titleEl = document.querySelector('.ecl-title[data-ecl-key="' + key + '"]');
+            if (titleEl) {
+                titleEl.textContent = eclLoadTitle(key);
+            }
+        }
+
         // ========================================================================
         // ========== AUTO-SAVE FOR EVERYTHING ELSE ==========
         // ========================================================================
@@ -6611,6 +6642,8 @@
         loadCheckboxes();
         loadTextAreas();
         renderFinance();
+        eclRenderTitle('meds');
+        eclRenderTitle('care');
         eclRender('meds');
         eclRender('care');
 
