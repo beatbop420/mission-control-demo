@@ -768,25 +768,35 @@
         var wand = q('.magic-wand');
         if (wand) {
             wand.classList.add('demo-dog-glow');
+            wand.style.cursor = 'pointer';
             var wandSayings = [
-                'Make it rain! ✨',
-                'Wave me around! 🪄',
-                'I grant you plot twists 🎭',
-                'Chaos or order? Your call 😏',
-                'Buckle up, buttercup 🌪️',
-                'Reality check incoming 💫',
-                'Shake things up! 🎪',
-                'Let\'s get weird 🌀',
-                'Surprise test drive! 🎢',
-                'Cast a vibe shift ✨'
+                'wave me for wishes ✨',
+                'I smell adventure 🌟',
+                'chaos is coming 🌪️',
+                'let\'s bend reality 🎭',
+                'sprinkle some magic ⭐',
+                'reality check incoming 💫',
+                'plot twist? yes please 🎪',
+                'buckle up buttercup 🌀',
+                'vibe shift activated 🔮',
+                'something wicked this way comes 👻'
             ];
-            var currentSaying = wandSayings[0];
-            wand.title = currentSaying;
+            wand.addEventListener('mouseenter', function () {
+                if (q('.demo-wand-hover-bubble')) return; // Don't create duplicates
+                var saying = wandSayings[Math.floor(Math.random() * wandSayings.length)];
+                var bubble = document.createElement('div');
+                bubble.className = 'demo-wand-hover-bubble';
+                bubble.textContent = saying;
+                document.body.appendChild(bubble);
+                var rect = wand.getBoundingClientRect();
+                bubble.style.left = (rect.right - 60) + 'px';
+                bubble.style.top = (rect.top - 50) + 'px';
+            });
+            wand.addEventListener('mouseleave', function () {
+                var bubble = q('.demo-wand-hover-bubble');
+                if (bubble) bubble.remove();
+            });
             wand.onclick = function () {
-                // Rotate to next saying
-                var idx = wandSayings.indexOf(currentSaying);
-                currentSaying = wandSayings[(idx + 1) % wandSayings.length];
-                wand.title = currentSaying;
                 if (typeof bippityBoppityBoo === 'function') bippityBoppityBoo();
             };
         }
