@@ -776,8 +776,8 @@
         dog.classList.add('demo-dog-glow');
         dog.setAttribute('role', 'button');
         dog.setAttribute('tabindex', '0');
-        dog.title = 'Supervisor Dog: Get help or a tour';
-        dog.addEventListener('click', showDogExplain);
+        dog.title = 'Click for a treat 🐾';
+        dog.addEventListener('click', showDogTreat);
         
         // Also enhance Wand and Crown
         var wand = q('.magic-wand');
@@ -894,24 +894,40 @@
         attachDrag(modal);
     }
 
-    function showDogExplain() {
+    var DOG_SAYINGS = [
+        "your mess is proof you're still trying, even when the playing field is tilted",
+        "shame is just biology misfiring. you're not broken, your wiring is just loud",
+        "paralysis doesn't mean you're failing. it means your nervous system is working too hard",
+        "rest isn't laziness. rest is refueling when everything costs extra energy",
+        "being behind is just where you are right now, not who you are",
+        "small wins still count, ESPECIALLY when everything is harder for you",
+        "your brain will lie and say you're not enough. statistically, it's wrong",
+        "the spiral is familiar. but it doesn't get to keep you",
+        "you're allowed to want to disappear for a bit. that's not weakness, that's self-awareness",
+        "chaos is the default state. that you keep trying anyway makes you feral as hell",
+        "your body crashed because it needed to, not because you did something wrong",
+        "panic is loud but you're louder. it just doesn't feel like it",
+        "you're doing better than your brain thinks you are. brains lie a lot",
+        "asking for help isn't giving up. it's changing the difficulty setting",
+        "the anxiety is real. so are you. one doesn't cancel out the other",
+        "you're allowed to exist without constantly proving your worth",
+        "overwhelm isn't a personality flaw. it's feedback. not judgment",
+        "the wall of awful is real. you're still moving through it anyway"
+    ];
+
+    function showDogTreat() {
         // Toggle off if already open
         var existing = q('.demo-dog-explain');
         if (existing) { existing.remove(); return; }
 
-        var tab = currentTab();
-        var info = DOG_EXPLAINS[tab] || DOG_EXPLAINS.rightnow;
+        var saying = DOG_SAYINGS[Math.floor(Math.random() * DOG_SAYINGS.length)];
 
         var card = document.createElement('div');
         card.className = 'demo-dog-explain';
         card.innerHTML =
             '<button class="demo-dog-explain-close" type="button" aria-label="Close">×</button>' +
-            '<strong class="demo-dog-explain-title">Supervisor Dog</strong>' +
-            '<p class="demo-dog-explain-text">"Woof! I\'m the Mission Control supervisor. Need a full tour or just the logic for this tab?"</p>' +
-            '<div style="display:grid; gap:6px; margin-top:12px;">' +
-                '<button class="demo-tour-btn primary" style="width:100%;" onclick="this.closest(\'.demo-dog-explain\').remove(); showTourStep(0)">Start Guided Tour</button>' +
-                '<button class="demo-tour-btn" style="width:100%;" onclick="showDogTabTip()">Explain This Tab</button>' +
-            '</div>';
+            '<strong class="demo-dog-explain-title">🐕 Treat from the Dog</strong>' +
+            '<p class="demo-dog-explain-text">' + saying + '</p>';
         document.body.appendChild(card);
         attachDrag(card);
 
@@ -928,7 +944,7 @@
             });
         }, 50);
 
-        // Flip the dog
+        // Wiggle the dog
         var dog = q('.corner-dog');
         if (dog) {
             dog.classList.remove('demo-dog-flip');
@@ -936,6 +952,11 @@
             dog.classList.add('demo-dog-flip');
             window.setTimeout(function () { dog.classList.remove('demo-dog-flip'); }, 800);
         }
+    }
+
+    // Keep old name for backwards compat, but call the new function
+    function showDogExplain() {
+        showDogTreat();
     }
 
     window.showTourStep = showTourStep;
