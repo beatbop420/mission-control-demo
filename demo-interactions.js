@@ -768,8 +768,25 @@
         var wand = q('.magic-wand');
         if (wand) {
             wand.classList.add('demo-dog-glow');
-            wand.title = 'Make it rain! ✨';
+            var wandSayings = [
+                'Make it rain! ✨',
+                'Wave me around! 🪄',
+                'I grant you plot twists 🎭',
+                'Chaos or order? Your call 😏',
+                'Buckle up, buttercup 🌪️',
+                'Reality check incoming 💫',
+                'Shake things up! 🎪',
+                'Let's get weird 🌀',
+                'Surprise test drive! 🎢',
+                'Cast a vibe shift ✨'
+            ];
+            var currentSaying = wandSayings[0];
+            wand.title = currentSaying;
             wand.onclick = function () {
+                // Rotate to next saying
+                var idx = wandSayings.indexOf(currentSaying);
+                currentSaying = wandSayings[(idx + 1) % wandSayings.length];
+                wand.title = currentSaying;
                 if (typeof bippityBoppityBoo === 'function') bippityBoppityBoo();
             };
         }
