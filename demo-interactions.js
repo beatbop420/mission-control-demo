@@ -797,32 +797,29 @@
 
     function castMagicalIncantation() {
         var text = document.createElement('div');
-        text.className = 'bippity-boppity-text';
+        text.className = 'bippity-boppity-text fade-in';
         text.textContent = '✨ Bippity Boppity Boo ✨';
         text.style.position = 'fixed';
         text.style.zIndex = '999999';
         text.style.pointerEvents = 'none';
         text.style.left = '50%';
         text.style.top = '30%';
-        text.style.transform = 'translateX(-50%)';
         document.body.appendChild(text);
-        
-        // Fade in and float
-        text.style.animation = 'fairy-float 5s ease-in-out forwards';
-        
-        // Start confetti after 2 seconds
+
+        // Start confetti at 2.5 seconds
         window.setTimeout(function () {
             if (typeof bippityBoppityBoo === 'function') {
                 bippityBoppityBoo();
             }
             // Fade out the text after confetti starts
-            text.style.animation = 'fairy-fade-out 2s ease-out forwards';
-        }, 2000);
-        
-        // Remove text after it fades
+            text.classList.remove('fade-in');
+            text.classList.add('fade-out');
+        }, 2500);
+
+        // Remove text after total time
         window.setTimeout(function () {
             text.remove();
-        }, 5000);
+        }, 5500);
     }
 
     function showWandMenu() {

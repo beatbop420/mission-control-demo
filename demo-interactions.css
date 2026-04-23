@@ -558,34 +558,46 @@
     font-weight: 400;
     font-style: italic;
     color: #e8b84b;
-    -webkit-text-stroke: 1px #c9b8d4;
-    text-shadow: 
-        0 0 20px rgba(232, 184, 75, 1),
-        0 0 40px rgba(201, 184, 212, 0.7);
+    -webkit-text-stroke: 1.5px #9d8bb4;
+    text-shadow:
+        0 0 20px rgba(232, 184, 75, 0.9),
+        0 0 40px rgba(157, 139, 180, 0.5);
     letter-spacing: 2px;
     white-space: nowrap;
-    opacity: 0;
-    filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.6));
+    opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.5));
 }
 
-@keyframes fairy-float {
+.bippity-boppity-text.fade-in {
+    animation: fairy-fade-in 3s ease-in-out forwards;
+}
+
+.bippity-boppity-text.fade-out {
+    animation: fairy-fade-out 2.5s ease-out forwards;
+}
+
+@keyframes fairy-fade-in {
     0% {
         opacity: 0;
-        transform: translateX(-50%) translateY(20px);
-        filter: blur(8px);
+        transform: translateX(-50%) translateY(15px);
+        filter: blur(10px);
     }
-    20% {
+    25% {
         opacity: 1;
+        filter: blur(2px);
+    }
+    40% {
         filter: blur(0);
     }
     45% {
-        transform: translateX(-50%) translateY(-12px);
+        transform: translateX(-50%) translateY(-10px);
     }
     55% {
-        transform: translateX(-50%) translateY(-8px);
+        transform: translateX(-50%) translateY(-6px);
     }
     85% {
         opacity: 1;
+        filter: blur(0);
     }
     100% {
         opacity: 1;
@@ -601,7 +613,7 @@
     }
     100% {
         opacity: 0;
-        filter: blur(6px);
+        filter: blur(8px);
     }
 }
 
