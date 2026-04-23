@@ -994,10 +994,8 @@
     function enhanceSecurityBadge() {
         var badge = document.getElementById('security-health-badge');
         if (!badge) return;
-        // Force a neutral demo state — remove live-app error styling
-        badge.className = '';
-        badge.style.background = '#6b5660';
-        badge.style.animation = 'none';
+        // In demo mode, show error state (pulsing red) since real security checks don't run
+        badge.className = 'health-error';
         badge.style.cursor = 'pointer';
         badge.title = 'What is this dot?';
         badge.addEventListener('click', function (e) {
