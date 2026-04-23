@@ -169,12 +169,16 @@
 
         .body-check .diamond {
             color: #c9b8d4;
-            animation: twinkle 2.5s ease-in-out infinite;
+            animation: sparkle 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            display: inline-block;
+            text-shadow: 0 0 4px rgba(201, 184, 212, 0.6);
         }
 
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            25% { opacity: 1; transform: scale(1.1); text-shadow: 0 0 8px rgba(201, 184, 212, 1); }
+            50% { opacity: 0.4; transform: scale(0.9); }
+            75% { opacity: 1; transform: scale(1.05); text-shadow: 0 0 6px rgba(201, 184, 212, 0.8); }
         }
 
         /* ===== STATUS BAR ===== */
@@ -351,6 +355,15 @@
         }
 
         /* ===== WORK CALENDAR ===== */
+        .work-month {
+            font-size: 13px;
+            color: #9a8a92;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
         .work-calendar {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -428,6 +441,93 @@
             outline: none;
             border-color: rgba(201, 184, 212, 0.5);
             background: rgba(201, 184, 212, 0.05);
+        }
+
+        /* ===== WORK CHECKLIST ===== */
+        .work-checklist-section {
+            margin: 16px 0;
+            padding: 12px;
+            background: rgba(201, 184, 212, 0.05);
+            border-radius: 8px;
+        }
+
+        .work-checklist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: #9a8a92;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .work-checklist-add-btn {
+            background: rgba(201, 184, 212, 0.2);
+            border: 1px solid rgba(201, 184, 212, 0.4);
+            color: #c9b8d4;
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .work-checklist-add-btn:hover {
+            background: rgba(201, 184, 212, 0.3);
+            border-color: rgba(201, 184, 212, 0.6);
+        }
+
+        .work-checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .work-checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            font-size: 14px;
+            color: #f0eae8;
+        }
+
+        .work-checklist-item input[type="checkbox"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: #c9b8d4;
+        }
+
+        .work-checklist-item input[type="checkbox"]:checked + span {
+            text-decoration: line-through;
+            color: #6b5660;
+        }
+
+        .work-checklist-item span {
+            flex: 1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .work-checklist-item .delete-btn {
+            background: transparent;
+            border: none;
+            color: #b85c70;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0 4px;
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
+        }
+
+        .work-checklist-item .delete-btn:hover {
+            opacity: 1;
         }
 
         /* ===== CHECKBOXES ===== */
@@ -2621,7 +2721,15 @@
         <!-- -------- ON CALL -------- -->
         <div class="card">
             <h2>Work — On Call</h2>
+            <div id="work-month" class="work-month"></div>
             <div id="work-calendar" class="work-calendar"></div>
+            <div class="work-checklist-section">
+                <div class="work-checklist-header">
+                    <span>On-Call Tasks</span>
+                    <button id="work-checklist-add" class="work-checklist-add-btn" onclick="addWorkChecklistItem()">+</button>
+                </div>
+                <div id="work-checklist" class="work-checklist"></div>
+            </div>
             <textarea id="work-notes" class="work-notes" placeholder="Notes or schedule changes..." rows="3"></textarea>
         </div>
 
@@ -3314,13 +3422,20 @@
 
         // ========== WORK CALENDAR ==========
         function renderWorkCalendar() {
+            const monthEl = document.getElementById('work-month');
             const cal = document.getElementById('work-calendar');
+            const checklistEl = document.getElementById('work-checklist');
             const notesEl = document.getElementById('work-notes');
-            if (!cal || !notesEl) return;
+            if (!cal || !notesEl || !monthEl || !checklistEl) return;
 
             const today = new Date();
             const workData = loadData('work_schedule') || {};
             const notes = workData.notes || '';
+            const checklist = workData.checklist || [];
+
+            // Render month/year
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            monthEl.textContent = `${monthNames[today.getMonth()]} ${today.getFullYear()}`;
 
             // Render 7-day calendar
             cal.innerHTML = '';
@@ -3352,12 +3467,63 @@
                 cal.appendChild(dayEl);
             }
 
+            // Render checklist
+            checklistEl.innerHTML = '';
+            checklist.forEach((item, idx) => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'work-checklist-item';
+                itemEl.innerHTML = `
+                    <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleWorkChecklistItem(${idx})">
+                    <span onclick="editWorkChecklistItem(${idx})">${item.text}</span>
+                    <button class="delete-btn" onclick="deleteWorkChecklistItem(${idx})">✕</button>
+                `;
+                checklistEl.appendChild(itemEl);
+            });
+
             // Load and display notes
             notesEl.value = notes;
             notesEl.addEventListener('change', () => {
                 workData.notes = notesEl.value;
                 saveData('work_schedule', workData);
             });
+        }
+
+        function addWorkChecklistItem() {
+            const text = prompt('Add on-call task:');
+            if (text) {
+                const workData = loadData('work_schedule') || {};
+                if (!workData.checklist) workData.checklist = [];
+                workData.checklist.push({ text, done: false });
+                saveData('work_schedule', workData);
+                renderWorkCalendar();
+            }
+        }
+
+        function editWorkChecklistItem(idx) {
+            const workData = loadData('work_schedule') || {};
+            const item = workData.checklist[idx];
+            const newText = prompt('Edit task:', item.text);
+            if (newText !== null && newText.trim()) {
+                workData.checklist[idx].text = newText.trim();
+                saveData('work_schedule', workData);
+                renderWorkCalendar();
+            }
+        }
+
+        function toggleWorkChecklistItem(idx) {
+            const workData = loadData('work_schedule') || {};
+            workData.checklist[idx].done = !workData.checklist[idx].done;
+            saveData('work_schedule', workData);
+            renderWorkCalendar();
+        }
+
+        function deleteWorkChecklistItem(idx) {
+            if (confirm('Delete this task?')) {
+                const workData = loadData('work_schedule') || {};
+                workData.checklist.splice(idx, 1);
+                saveData('work_schedule', workData);
+                renderWorkCalendar();
+            }
         }
 
         // ========== RIGHT NOW TAB ==========
