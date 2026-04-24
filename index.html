@@ -3498,7 +3498,7 @@
                 const itemEl = document.createElement('div');
                 itemEl.className = 'work-checklist-item';
                 itemEl.innerHTML = `
-                    <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleWorkChecklistItem(${idx})">
+                    <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleWorkChecklistItem(${idx}, event)">
                     <span onclick="editWorkChecklistItem(${idx})">${item.text}</span>
                     <button class="delete-btn" onclick="deleteWorkChecklistItem(${idx})">✕</button>
                 `;
@@ -3528,52 +3528,22 @@
             }
         }
 
-        function toggleWorkChecklistItem(idx) {
+        function toggleWorkChecklistItem(idx, event) {
             const workData = loadData('work_schedule') || {};
             const wasChecked = workData.checklist[idx].done;
             workData.checklist[idx].done = !workData.checklist[idx].done;
             saveData('work_schedule', workData);
 
-            // Celebrate when checking off a task!
+            // Starburst sparkles when checking off a task!
             if (!wasChecked) {
-                celebrateTaskCompletion();
+                const checkbox = event && event.target ? event.target : document.querySelector('#work-checklist input[type="checkbox"]:checked');
+                if (checkbox) {
+                    const pos = getCenter(checkbox);
+                    spawnSparkles(pos.x, pos.y, 15);
+                }
             }
 
             renderWorkCalendar();
-        }
-
-        function celebrateTaskCompletion() {
-            const RAIN_CHARS = ['✨','⭐','💫','🌟','🦋','💖','💜','🔮','👑','🌙','⋆','˚','✧'];
-            const screenW = window.innerWidth;
-            const screenH = window.innerHeight;
-            const totalSparkles = 25;
-
-            for (let i = 0; i < totalSparkles; i++) {
-                setTimeout(() => {
-                    const spark = document.createElement('span');
-                    spark.className = 'sparkle-rain';
-                    spark.textContent = RAIN_CHARS[Math.floor(Math.random() * RAIN_CHARS.length)];
-
-                    spark.style.left = (Math.random() * screenW) + 'px';
-                    spark.style.top = (-20 + Math.random() * -40) + 'px';
-
-                    const fallDist = screenH + 50 + Math.random() * 100;
-                    spark.style.setProperty('--fall-dist', fallDist + 'px');
-
-                    spark.style.fontSize = (12 + Math.random() * 22) + 'px';
-
-                    const colors = ['#9cbb8f', '#c9b8d4', '#d4a574', '#b85c70', '#f0c4d4', '#daa0d0'];
-                    spark.style.color = colors[Math.floor(Math.random() * colors.length)];
-
-                    spark.style.animationDuration = (1.5 + Math.random() * 2) + 's';
-
-                    spark.style.marginLeft = (-30 + Math.random() * 60) + 'px';
-
-                    document.body.appendChild(spark);
-
-                    setTimeout(() => spark.remove(), 4000);
-                }, i * 40);
-            }
         }
 
         function deleteWorkChecklistItem(idx) {
