@@ -740,7 +740,43 @@
         if (qa('.demo-body-check-item').every(function (el) {
             return el.classList.contains('demo-body-checked');
         })) {
-            notify('Body check complete');
+            cinderellaMagic();
+        }
+    }
+
+    function cinderellaMagic() {
+        var centerX = window.innerWidth / 2;
+        var centerY = window.innerHeight / 2;
+        var magicChars = ['✨', '💫', '⭐', '🌟', '✦', '✧', '⋆'];
+        var colors = ['#d4849a', '#e8b84b', '#ffffff', '#c87a90', '#b48db5', '#f0c4d4', '#daa0d0'];
+        var totalDust = 50;
+
+        for (let i = 0; i < totalDust; i++) {
+            setTimeout(function() {
+                var dust = document.createElement('span');
+                dust.className = 'sparkle';
+                dust.textContent = magicChars[Math.floor(Math.random() * magicChars.length)];
+
+                // Spiral radius grows over time
+                var angle = (i / totalDust) * Math.PI * 4; // 2 full rotations worth of particles
+                var distance = 20 + (i / totalDust) * 200; // starts close, spreads out
+
+                // Calculate spiral position
+                var x = Math.cos(angle) * distance;
+                var y = Math.sin(angle) * distance;
+
+                dust.style.left = (centerX + x) + 'px';
+                dust.style.top = (centerY + y) + 'px';
+                dust.style.fontSize = (8 + Math.random() * 16) + 'px';
+                dust.style.color = colors[Math.floor(Math.random() * colors.length)];
+                dust.style.setProperty('--sx', (x * 2) + 'px'); // spiral outward
+                dust.style.setProperty('--sy', (y * 2) + 'px');
+                dust.style.animationDuration = (0.8 + Math.random() * 0.6) + 's';
+                dust.style.opacity = '0.9';
+
+                document.body.appendChild(dust);
+                setTimeout(function() { dust.remove(); }, 1200);
+            }, i * 30); // stagger each particle
         }
     }
 
