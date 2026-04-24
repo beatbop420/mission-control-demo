@@ -780,6 +780,15 @@
                 }, index * 20); // stagger each particle by 20ms
             })(i);
         }
+
+        // Pop "Slay Girl" in the center
+        setTimeout(function() {
+            var text = document.createElement('div');
+            text.className = 'slay-girl-text';
+            text.textContent = 'Slay Girl';
+            document.body.appendChild(text);
+            setTimeout(function() { text.remove(); }, 2000);
+        }, 400);
     }
 
     var DOG_EXPLAINS = {

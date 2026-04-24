@@ -2299,6 +2299,44 @@
             100% { opacity: 0; transform: translateY(var(--fall-dist)) rotate(720deg) scale(0.2); }
         }
 
+        /* ===== SLAY GIRL TEXT ===== */
+        .slay-girl-text {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0.3) rotate(-15deg);
+            font-size: 72px;
+            font-weight: 900;
+            font-family: 'Lexend', 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+            text-align: center;
+            z-index: 10000;
+            pointer-events: none;
+            letter-spacing: 2px;
+            color: #ff548f;
+            text-shadow:
+                0 0 20px rgba(255, 84, 143, 0.8),
+                0 0 40px rgba(232, 184, 75, 0.6),
+                0 0 60px rgba(196, 125, 208, 0.4),
+                0 2px 8px rgba(0, 0, 0, 0.3);
+            filter: drop-shadow(0 0 20px rgba(255, 84, 143, 0.6));
+            animation: slayPop 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes slayPop {
+            0% {
+                transform: translate(-50%, -50%) scale(0.2) rotate(-15deg);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.15) rotate(5deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
         /* ===== MAGIC WAND BUTTON ===== */
         .magic-wand {
             position: fixed;
