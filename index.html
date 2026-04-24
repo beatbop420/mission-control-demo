@@ -3523,6 +3523,20 @@
             const workData = loadData('work_schedule') || {};
             const checklist = Array.isArray(workData.checklist) ? workData.checklist : [];
 
+            // Clean up any XSS payloads saved from an earlier vulnerable version.
+            // Strips anything that looks like an HTML tag so old bad data can't bite us.
+            let sanitizerTouched = false;
+            checklist.forEach(item => {
+                if (item && typeof item.text === 'string' && /<[^>]+>/.test(item.text)) {
+                    item.text = item.text.replace(/<[^>]+>/g, '').trim() || '(cleared)';
+                    sanitizerTouched = true;
+                }
+            });
+            if (sanitizerTouched) {
+                workData.checklist = checklist;
+                saveData('work_schedule', workData);
+            }
+
             // Render month/year
             const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
             monthEl.textContent = `${monthNames[today.getMonth()]} ${today.getFullYear()}`;
