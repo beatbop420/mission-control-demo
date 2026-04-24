@@ -13,6 +13,8 @@
         return d.toISOString().slice(0, 10);
     };
     const nowIso = today.toISOString();
+    const todayStr = isoDate(0);
+    const currentMonth = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
 
     // Keys stored via saveData() — app reads them with loadData(key) → 'mc_' + key
     const mcData = {
@@ -48,9 +50,9 @@
         manual_pending: 0,
         safe_to_spend: 0,
         sinking_funds: [],
-        bank_data_source: 'demo',
+        bank_data_source: 'demo-local',
         bank_last_fetch_iso: nowIso,
-        bank_last_fetch_label: 'just now (demo)',
+        bank_last_fetch_label: 'local demo data',
 
         // === BODY ===
         body_forecast: {
@@ -72,14 +74,14 @@
         // === LIFE ===
         cycle_entries: [],
         kid_logs: [],
-        checkboxes: {},
-        timestamps: {},
+        checkboxes: [],
+        timestamps: [],
         symptom_log: [],
-        textareas: { brain_dump: '' },
+        textareas: [],
         paycheck_log: [],
-        last_auto_run: nowIso,
-        last_bill_reset_month: today.getMonth(),
-        last_checkbox_reset: isoDate(0),
+        last_auto_run: todayStr,
+        last_bill_reset_month: currentMonth,
+        last_checkbox_reset: todayStr,
 
         // Flags the app uses to skip "first-run" migrations
         balance_init_v1: true,
@@ -117,6 +119,8 @@ window.seedSampleData = function() {
         return d.toISOString().slice(0, 10);
     };
     const nowIso = today.toISOString();
+    const todayStr = isoDate(0);
+    const currentMonth = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
 
     const sampleTasks = [
         {
@@ -158,52 +162,55 @@ window.seedSampleData = function() {
     const sampleAccounts = [
         {
             id: 'sample-checking',
-            name: 'Checking Account',
+            name: 'Checking',
             type: 'Checking',
-            balance: 1247.83,
-            availableBalance: 1247.83,
-            postedBalance: 1389.50,
-            pendingTotal: -141.67,
-            pendingCount: 3,
-            balance_date: nowIso
+            balance: 1414.00,
+            availableBalance: 1414.00,
+            postedBalance: 1414.00,
+            pendingTotal: 0,
+            pendingCount: 0,
+            balanceDate: nowIso
         },
         {
             id: 'sample-savings',
-            name: 'Safety Savings',
+            name: 'Savings',
             type: 'Savings',
             balance: 420.00,
             availableBalance: 420.00,
             postedBalance: 420.00,
             pendingTotal: 0,
             pendingCount: 0,
-            balance_date: nowIso
+            balanceDate: nowIso
         }
     ];
 
     const sampleBills = [
-        { id: 'sb1', name: 'Housing / Rent', amount: 950, dueDate: isoDate(-12), recurring: 'monthly', status: 'paid', paid: true, paidDate: isoDate(-12), category: 'Fixed' },
-        { id: 'sb2', name: 'Electric', amount: 87, dueDate: isoDate(5), recurring: 'monthly', status: 'pending', paid: false, category: 'Fixed' },
-        { id: 'sb3', name: 'Phone', amount: 52, dueDate: isoDate(8), recurring: 'monthly', status: 'unpaid', paid: false, category: 'Fixed' },
-        { id: 'sb4', name: 'Streaming Bundle', amount: 28, dueDate: isoDate(-3), recurring: 'monthly', status: 'paid', paid: true, paidDate: isoDate(-3), category: 'Fixed' },
-        { id: 'sb5', name: 'Internet', amount: 65, dueDate: isoDate(14), recurring: 'monthly', status: 'unpaid', paid: false, category: 'Fixed' }
+        { id: 'sb1', name: 'Housing / Rent', amount: 950, dueDate: isoDate(8), recurring: 'Monthly', status: 'unpaid', paid: false, category: 'Housing' },
+        { id: 'sb2', name: 'Electric', amount: 87, dueDate: isoDate(5), recurring: 'Monthly', status: 'unpaid', paid: false, category: 'Utilities' },
+        { id: 'sb3', name: 'Phone', amount: 52, dueDate: isoDate(8), recurring: 'Monthly', status: 'unpaid', paid: false, category: 'Phone/Internet' },
+        { id: 'sb4', name: 'Streaming Bundle', amount: 28, dueDate: isoDate(10), recurring: 'Monthly', status: 'unpaid', paid: false, category: 'Subscriptions' },
+        { id: 'sb5', name: 'Internet', amount: 65, dueDate: isoDate(14), recurring: 'Monthly', status: 'unpaid', paid: false, category: 'Phone/Internet' },
+        { id: 'sb6', name: 'Car Insurance', amount: 112, dueDate: isoDate(-9), recurring: 'Monthly', status: 'processed', paid: true, paidDate: isoDate(-9), paidBy: 'autopay', category: 'Insurance' }
     ];
 
     const sampleData = {
         fin_accounts: sampleAccounts,
         fin_bills: sampleBills,
-        fin_income: [{ id: 'si1', name: 'Main Job', amount: 1800, frequency: 'biweekly', nextDate: isoDate(6) }],
+        fin_income: [{ id: 'si1', source: 'Main Job', amount: 1800, frequency: 'Bi-weekly', nextDate: isoDate(14) }],
         fin_debts: [{ id: 'sd1', name: 'Credit Card', type: 'Credit Card', currentBalance: 1250, originalBalance: 1500, apr: 19.99, minPayment: 35, dueDate: isoDate(11), notes: '' }],
         fin_emergency: { goal: 2000, current: 420 },
         fin_spending: [],
-        fin_transactions: [],
+        fin_transactions: [
+            { id: 'st1', description: 'Auto-pay bill: Car Insurance', amount: -112, category: 'Bills', date: isoDate(-9) }
+        ],
         buckets: {
-            fixed: { balance: 450, needed: 987 },
+            fixed: { balance: 1182, needed: 1182 },
             safety: { balance: 420, goal: 1000 },
             life: { balance: 187, budgetPerPaycheck: 350 },
             dopamine: { balance: 45, budgetPerPaycheck: 100 }
         },
         bucket_settings: {
-            nextPayday: isoDate(6),
+            nextPayday: isoDate(14),
             paycheckAmount: 1800,
             safetyAmount: 50,
             lifeBudget: 350,
@@ -215,6 +222,16 @@ window.seedSampleData = function() {
         manual_pending: 0,
         sinking_funds: [],
         kid_logs: [],
+        checkboxes: [],
+        timestamps: [],
+        textareas: [],
+        paycheck_log: [],
+        last_auto_run: todayStr,
+        last_bill_reset_month: currentMonth,
+        last_checkbox_reset: todayStr,
+        bank_data_source: 'demo-local',
+        bank_last_fetch_iso: nowIso,
+        bank_last_fetch_label: 'sample data loaded',
         body_forecast: {
             temp: 68,
             tempHigh: 74,
@@ -230,7 +247,8 @@ window.seedSampleData = function() {
             nextPressureDrop: isoDate(3),
             updateTime: nowIso
         },
-        textareas: { brain_dump: 'I need to call the dentist, finish that work report, and figure out why the car is making that noise. Also groceries before Thursday.' }
+        cycle_entries: [],
+        symptom_log: []
     };
 
     Object.entries(sampleData).forEach(([key, value]) => {

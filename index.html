@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://dtpcwammbcxdmhygwsth.supabase.co https://api.open-meteo.com https://air-quality-api.open-meteo.com; img-src 'self' data:; iframe-src https://calendar.google.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' https://api.open-meteo.com https://air-quality-api.open-meteo.com; img-src 'self' data:;">
     <title>Demo MC — Mission Control Demo</title>
     <meta name="robots" content="noindex, nofollow">
     <meta name="googlebot" content="noindex, nofollow">
@@ -25,8 +25,7 @@
     <!-- Security pod — error capture, RLS probes, health monitoring -->
     <script src="security-pod.js"></script>
 
-    <!-- Lexend font - designed to reduce visual stress and boost reading speed -->
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Demo stays local-only except weather, so typography falls back to local system fonts -->
 
     <style>
         * {
@@ -1763,6 +1762,10 @@
             box-shadow: 0 0 8px rgba(232, 97, 95, 0.8), 0 0 16px rgba(232, 97, 95, 0.5);
             animation: health-pulse 2s infinite;
         }
+        #security-health-badge.health-demo {
+            background: #b48db5;
+            box-shadow: 0 0 8px rgba(180, 141, 181, 0.38);
+        }
         @keyframes health-pulse {
             0% { 
                 transform: scale(1); 
@@ -2524,7 +2527,7 @@
 
     <!-- ====== HEADER ====== -->
     <div class="header">
-        <h1><span class="header-crown">👑</span>MISSION CONTROL<span id="security-health-badge" class="health-error" title="Security Health: Unknown"></span></h1>
+        <h1><span class="header-crown">👑</span>MISSION CONTROL<span id="security-health-badge" class="health-demo" title="Demo mode: local playground. Weather is live; bank sync and cloud checks are off."></span></h1>
         <div class="date" id="today-date"></div>
         <div class="time" id="current-time"></div>
     </div>
@@ -3467,6 +3470,8 @@
     <!-- ====== JAVASCRIPT ====== -->
     <script>
         // ========== DATE & TIME ==========
+        const DEMO_LOCAL_PLAYGROUND = true;
+
         const today = new Date();
         const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         document.getElementById('today-date').textContent = today.toLocaleDateString('en-US', dateOptions);
@@ -3516,7 +3521,7 @@
 
             const today = new Date();
             const workData = loadData('work_schedule') || {};
-            const checklist = workData.checklist || [];
+            const checklist = Array.isArray(workData.checklist) ? workData.checklist : [];
 
             // Render month/year
             const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -3530,20 +3535,31 @@
                 const dateStr = d.toISOString().slice(0, 10);
                 const dayLabel = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()];
                 const dayOfMonth = d.getDate();
-                const entry = workData[dateStr] || '';
+                const entry = typeof workData[dateStr] === 'string' ? workData[dateStr] : '';
 
                 const dayEl = document.createElement('div');
                 dayEl.className = 'work-day' + (i === 0 ? ' today' : '');
-                dayEl.innerHTML = `
-                    <div class="work-day-label">${dayLabel}</div>
-                    <div class="work-day-date">${dayOfMonth}</div>
-                    <div class="work-day-entry ${entry ? '' : 'empty'}">${entry || '—'}</div>
-                `;
+
+                const labelEl = document.createElement('div');
+                labelEl.className = 'work-day-label';
+                labelEl.textContent = dayLabel;
+
+                const dateEl = document.createElement('div');
+                dateEl.className = 'work-day-date';
+                dateEl.textContent = String(dayOfMonth);
+
+                const entryEl = document.createElement('div');
+                entryEl.className = 'work-day-entry' + (entry ? '' : ' empty');
+                entryEl.textContent = entry || '—';
+
+                dayEl.appendChild(labelEl);
+                dayEl.appendChild(dateEl);
+                dayEl.appendChild(entryEl);
 
                 dayEl.addEventListener('click', () => {
                     const input = prompt(`Enter work status for ${dayLabel}, ${dayOfMonth}:`, entry);
                     if (input !== null) {
-                        workData[dateStr] = input;
+                        workData[dateStr] = input.trim();
                         saveData('work_schedule', workData);
                         renderWorkCalendar();
                     }
@@ -3557,21 +3573,35 @@
             checklist.forEach((item, idx) => {
                 const itemEl = document.createElement('div');
                 itemEl.className = 'work-checklist-item';
-                itemEl.innerHTML = `
-                    <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleWorkChecklistItem(${idx}, event)">
-                    <span onclick="editWorkChecklistItem(${idx})">${item.text}</span>
-                    <button class="delete-btn" onclick="deleteWorkChecklistItem(${idx})">✕</button>
-                `;
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = !!item.done;
+                checkbox.addEventListener('change', (event) => toggleWorkChecklistItem(idx, event));
+
+                const label = document.createElement('span');
+                label.textContent = item.text || '';
+                label.addEventListener('click', () => editWorkChecklistItem(idx));
+
+                const button = document.createElement('button');
+                button.className = 'delete-btn';
+                button.type = 'button';
+                button.textContent = '✕';
+                button.addEventListener('click', () => deleteWorkChecklistItem(idx));
+
+                itemEl.appendChild(checkbox);
+                itemEl.appendChild(label);
+                itemEl.appendChild(button);
                 checklistEl.appendChild(itemEl);
             });
         }
 
         function addWorkChecklistItem() {
             const text = prompt('Add on-call task:');
-            if (text) {
+            if (text && text.trim()) {
                 const workData = loadData('work_schedule') || {};
-                if (!workData.checklist) workData.checklist = [];
-                workData.checklist.push({ text, done: false });
+                if (!Array.isArray(workData.checklist)) workData.checklist = [];
+                workData.checklist.push({ text: text.trim(), done: false });
                 saveData('work_schedule', workData);
                 renderWorkCalendar();
             }
@@ -3579,6 +3609,7 @@
 
         function editWorkChecklistItem(idx) {
             const workData = loadData('work_schedule') || {};
+            if (!Array.isArray(workData.checklist) || !workData.checklist[idx]) return;
             const item = workData.checklist[idx];
             const newText = prompt('Edit task:', item.text);
             if (newText !== null && newText.trim()) {
@@ -3590,6 +3621,7 @@
 
         function toggleWorkChecklistItem(idx, event) {
             const workData = loadData('work_schedule') || {};
+            if (!Array.isArray(workData.checklist) || !workData.checklist[idx]) return;
             const wasChecked = workData.checklist[idx].done;
             workData.checklist[idx].done = !workData.checklist[idx].done;
             saveData('work_schedule', workData);
@@ -3609,6 +3641,7 @@
         function deleteWorkChecklistItem(idx) {
             if (confirm('Delete this task?')) {
                 const workData = loadData('work_schedule') || {};
+                if (!Array.isArray(workData.checklist) || !workData.checklist[idx]) return;
                 workData.checklist.splice(idx, 1);
                 saveData('work_schedule', workData);
                 renderWorkCalendar();
@@ -3660,17 +3693,18 @@
             const alertsDiv = document.getElementById('rn-alerts');
             alertsDiv.innerHTML = '';
             const now = new Date();
+            normalizeBillStatuses();
 
             // Check for past-due bills (uses the real finBills array)
             const pastDue = finBills.filter(b => {
-                if (!b.dueDate || b.paid) return false;
+                if (!b.dueDate || b.status === 'processed') return false;
                 const due = new Date(b.dueDate + 'T00:00:00');
                 return due < now;
             });
 
             // Check for disconnect warnings (bills with ⚠ or DISCONNECT in name)
             const disconnectBills = finBills.filter(b =>
-                !b.paid && b.name && (b.name.includes('DISCONNECT') || b.name.includes('disconnect'))
+                b.status !== 'processed' && b.name && (b.name.includes('DISCONNECT') || b.name.includes('disconnect'))
             );
             disconnectBills.forEach(b => {
                 alertsDiv.innerHTML += '<div class="rightnow-alert">⚠️ ' + esc(b.name) + ' — ' + fmt$(b.amount) + '</div>';
@@ -3727,7 +3761,7 @@
             if (finBills && finBills.length > 0) {
                 const soon = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
                 finBills.forEach(b => {
-                    if (b.dueDate && !b.paid) {
+                    if (b.dueDate && b.status !== 'processed') {
                         const due = new Date(b.dueDate + 'T00:00:00');
                         if (due >= now && due <= soon) {
                             actions.push({ icon: '💸', text: 'Bill due soon: ' + b.name + ' ' + fmt$(b.amount) });
@@ -4332,6 +4366,32 @@
         // after the LAST save for each key, so rapid typing doesn't spam the database.
         // Each save also records a timestamp so we can resolve cloud vs local conflicts.
         var _syncTimers = {};
+
+        function setDemoHealthBadge() {
+            const badge = document.getElementById('security-health-badge');
+            if (!badge) return;
+            badge.className = 'health-demo';
+            badge.title = 'Demo mode: local playground. Weather is live; bank sync and cloud checks are off.';
+        }
+
+        function normalizeIncomeFrequency(value) {
+            if (!value) return '';
+            const normalized = String(value).trim().toLowerCase();
+            const freqMap = {
+                'weekly': 'Weekly',
+                'biweekly': 'Bi-weekly',
+                'bi-weekly': 'Bi-weekly',
+                'semi-monthly': 'Semi-monthly',
+                'monthly': 'Monthly',
+                'quarterly': 'Quarterly',
+                'yearly': 'Yearly',
+                'annually': 'Yearly',
+                'irregular': 'Irregular',
+                'per case': 'Per case'
+            };
+            return freqMap[normalized] || value;
+        }
+
         function saveData(key, value) {
             // Step 3: Security Pod Input Validation
             if (window.SecurityPod) {
@@ -4348,6 +4408,14 @@
             // Record when this key was last changed locally (for conflict resolution)
             localStorage.setItem('mc_ts_' + key, new Date().toISOString());
 
+            if (DEMO_LOCAL_PLAYGROUND) {
+                if (_syncTimers[key]) {
+                    clearTimeout(_syncTimers[key]);
+                    delete _syncTimers[key];
+                }
+                return;
+            }
+
             // Debounce: cancel any pending sync for this key, start a new 2-second timer
             if (_syncTimers[key]) clearTimeout(_syncTimers[key]);
             _syncTimers[key] = setTimeout(function() {
@@ -4358,6 +4426,10 @@
 
         // --- Push one key to Supabase (runs in background, won't block the page) ---
         async function syncToCloud(key, value) {
+            if (DEMO_LOCAL_PLAYGROUND) {
+                return false;
+            }
+
             // Step 4: Sync Journal entry
             let jid = null;
             if (window.SecurityPod) {
@@ -4428,6 +4500,10 @@
         // --- On startup: pull ALL data from Supabase into localStorage ---
         // This runs once when the page loads so all devices have the latest data
         async function syncFromCloud() {
+            if (DEMO_LOCAL_PLAYGROUND) {
+                return false;
+            }
+
             try {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if (!user) {
@@ -4488,6 +4564,10 @@
         // --- One-time migration: push existing localStorage data to the cloud ---
         // Runs on first login if Supabase is empty but localStorage has data
         async function migrateLocalToCloud() {
+            if (DEMO_LOCAL_PLAYGROUND) {
+                return false;
+            }
+
             try {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if (!user) return;
@@ -4583,31 +4663,7 @@
         }
 
         function syncBucketsToAccounts() {
-            if (finAccounts.length === 0) return;
-            const savings = finAccounts.find(a =>
-                a.type === 'Savings' || (a.name && a.name.toLowerCase().includes('saving'))
-            );
-            const checking = finAccounts.find(a =>
-                a.type === 'Checking' || (a.name && a.name.toLowerCase().includes('checking'))
-            );
-            if (savings) {
-                buckets.safety.balance = savings.balance;
-            }
-            if (checking) {
-                const checkingBal = checking.balance;
-                const currentBucketTotal = buckets.fixed.balance + buckets.life.balance + buckets.dopamine.balance;
-                const diff = checkingBal - currentBucketTotal;
-                if (Math.abs(diff) > 0.01) {
-                    buckets.life.balance += diff;
-                    if (buckets.life.balance < 0) {
-                        // Don't cascade the deficit into Dopamine — that silently wipes it.
-                        // Just zero Life and flag it so the user knows to log untracked spending.
-                        setStatus('info', 'Bank balance doesn\'t match bucket total — Life bucket adjusted. Log any untracked spending in the Log tab to reconcile.');
-                        buckets.life.balance = 0;
-                    }
-                }
-            }
-            saveBuckets();
+            return getBucketReconciliation();
         }
 
         // What type of form are we currently showing?
@@ -4992,6 +5048,42 @@
             return getDisplayBalance(getAccountByType('Checking'));
         }
 
+        function syncManualBalanceFields(account, balance) {
+            if (!account) return;
+            account.balance = balance;
+
+            if (
+                typeof account.availableBalance === 'number' ||
+                typeof account.postedBalance === 'number' ||
+                typeof account.pendingTotal === 'number'
+            ) {
+                const pending = typeof account.pendingTotal === 'number' ? account.pendingTotal : 0;
+                account.availableBalance = balance;
+                account.postedBalance = balance - pending;
+            }
+        }
+
+        function adjustCheckingBalance(delta) {
+            const checking = getAccountByType('Checking');
+            if (!checking || !Number.isFinite(delta)) return false;
+            syncManualBalanceFields(checking, getDisplayBalance(checking) + delta);
+            return true;
+        }
+
+        function getTrackedCheckingBucketTotal() {
+            return (buckets.fixed.balance || 0) + (buckets.life.balance || 0) + (buckets.dopamine.balance || 0);
+        }
+
+        function getBucketReconciliation() {
+            const checking = getCheckingBalance();
+            const tracked = getTrackedCheckingBucketTotal();
+            return {
+                checking: checking,
+                tracked: tracked,
+                diff: checking - tracked
+            };
+        }
+
         function getAccountDetailText(account) {
             const base = account.type || 'Account';
             if (typeof account.availableBalance !== 'number' && typeof account.postedBalance !== 'number') {
@@ -5012,8 +5104,8 @@
 
             const checking = getAccountByType('Checking');
             if (!checking || typeof checking.availableBalance !== 'number') {
-                if (intro) intro.textContent = 'Bank sync is temporarily paused.';
-                wrap.innerHTML = '<div class="bank-snapshot-card" style="grid-column:1 / -1;"><div class="bank-snapshot-note">Bank sync is local-only in this demo. Add an account balance manually, or connect your own data source later.</div></div>';
+                if (intro) intro.textContent = 'Local playground mode.';
+                wrap.innerHTML = '<div class="bank-snapshot-card" style="grid-column:1 / -1;"><div class="bank-snapshot-note">Live bank sync is off in this demo. Edit balances manually or load sample data to play with the math.</div></div>';
                 return;
             }
 
@@ -5022,9 +5114,13 @@
             const pending = typeof checking.pendingTotal === 'number' ? checking.pendingTotal : 0;
             const pendingCount = checking.pendingCount || 0;
             const manualPending = parseFloat(loadData('manual_pending') || '0');
+            const reconciliation = getBucketReconciliation();
+            const reconciliationNote = Math.abs(reconciliation.diff) > 0.01
+                ? '<div class="bank-snapshot-card" style="grid-column:1 / -1;"><div class="bank-snapshot-note">Bucket total for checking-backed money is ' + fmt$(reconciliation.tracked) + '. Checking shows ' + fmt$(reconciliation.checking) + '. Difference: ' + fmt$(reconciliation.diff) + '. Use Log Paycheck, Mark Bill Paid, Debt Payment, or Log Spending to reconcile the playground math.</div></div>'
+                : '';
 
             if (intro) {
-                intro.innerHTML = '<strong>Quick decode:</strong> the first number is what the app is currently going by. The others explain why your bank app may look different, without making you do mental gymnastics.';
+                intro.innerHTML = '<strong>Quick decode:</strong> this demo keeps bank-style fields for the UI, but the numbers are local playground data unless you edit them yourself.';
             }
 
             wrap.innerHTML =
@@ -5047,7 +5143,8 @@
               +   '<div class="bank-snapshot-label">Money Already Spoken For</div>'
               +   '<div class="bank-snapshot-value manual-value">' + fmt$(manualPending) + '</div>'
               +   '<div class="bank-snapshot-note">Checks, ACH, or transfers you know are already going out even if the bank feed has not caught up yet.</div>'
-              + '</div>';
+              + '</div>'
+              + reconciliationNote;
         }
 
         // Get next payday date object (or null)
@@ -5058,7 +5155,14 @@
 
         // Normalize bill statuses — call once before any bill rendering
         function normalizeBillStatuses() {
-            finBills.forEach(b => { if (!b.status) b.status = b.paid ? 'processed' : 'unpaid'; });
+            finBills.forEach(b => {
+                if (b.status === 'paid') {
+                    b.status = 'processed';
+                    b.paid = true;
+                } else if (!b.status) {
+                    b.status = b.paid ? 'processed' : 'unpaid';
+                }
+            });
         }
 
         function normalizeRecurringLabel(value) {
@@ -5330,6 +5434,7 @@
             const billsBeforePayday = nextPayday ? upcoming14.filter(b => b._projected <= nextPayday) : upcoming14;
             const totalBeforePayday = billsBeforePayday.reduce((sum, b) => sum + (b.amount || 0), 0);
             const safeToSpend = balance - totalBeforePayday - manualPending;
+            saveData('safe_to_spend', safeToSpend);
 
             // Overdue bills
             const overdueBills = getOverdueBills();
@@ -5816,6 +5921,7 @@
             const payment = parseFloat(amount);
             if (isNaN(payment) || payment <= 0) { alert('Enter a positive number'); return; }
             debt.currentBalance = Math.max(0, debt.currentBalance - payment);
+            const checkingChanged = adjustCheckingBalance(-payment);
             // Log it as a transaction too
             const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
             finTransactions.push({
@@ -5827,6 +5933,7 @@
             });
             saveData('fin_debts', finDebts);
             saveData('fin_transactions', finTransactions);
+            if (checkingChanged) saveData('fin_accounts', finAccounts);
             renderFinance();
         }
 
@@ -6107,7 +6214,7 @@
         // e.g. $2100 bi-weekly = $2100 * 26 / 12 = $4,550/month
         function toMonthly(amount, frequency) {
             if (!frequency) return amount; // no frequency set = assume monthly
-            const f = frequency.toLowerCase();
+            const f = normalizeIncomeFrequency(frequency).toLowerCase();
             if (f === 'weekly') return amount * 52 / 12;
             if (f === 'bi-weekly') return amount * 26 / 12;
             if (f === 'semi-monthly') return amount * 2;
@@ -6162,13 +6269,27 @@
             if (input === null) return;
             const paidAmount = parseFloat(input);
             if (isNaN(paidAmount) || paidAmount <= 0) { alert('Enter a valid dollar amount'); return; }
-            // Mark as PENDING — waiting for bank to confirm
-            bill.status = 'pending';
+            // Demo mode is local-only, so marking paid also updates the local checking balance.
+            bill.status = 'processed';
             bill.paid = true;
             bill.paidAmount = paidAmount;
             bill.paidDate = new Date().toISOString().split('T')[0];
-            // NO manual deduction — bank balance from SimpleFIN is the source of truth
+            bill.paidBy = 'manual';
+            bill.demoCheckingAdjusted = true;
+
+            const checkingChanged = adjustCheckingBalance(-paidAmount);
+            const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+            finTransactions.push({
+                id: genId(),
+                description: 'Bill paid: ' + bill.name,
+                amount: -paidAmount,
+                category: 'Bills',
+                date: bill.paidDate
+            });
+
             saveData('fin_bills', finBills);
+            saveData('fin_transactions', finTransactions);
+            if (checkingChanged) saveData('fin_accounts', finAccounts);
             renderFinance();
         }
 
@@ -6177,6 +6298,13 @@
             const bill = finBills.find(b => b.id === id);
             if (!bill) return;
             bill.status = 'processed';
+            if (!bill.demoCheckingAdjusted) {
+                const paidAmount = bill.paidAmount || bill.amount;
+                if (adjustCheckingBalance(-paidAmount)) {
+                    bill.demoCheckingAdjusted = true;
+                    saveData('fin_accounts', finAccounts);
+                }
+            }
             saveData('fin_bills', finBills);
             renderFinance();
         }
@@ -6185,11 +6313,16 @@
             const bill = finBills.find(b => b.id === id);
             if (!bill) return;
             if (!confirm('Move ' + bill.name + ' back to unpaid?')) return;
+            const paidAmount = bill.paidAmount || bill.amount;
+            if (bill.demoCheckingAdjusted && adjustCheckingBalance(paidAmount)) {
+                saveData('fin_accounts', finAccounts);
+            }
             bill.status = 'unpaid';
             bill.paid = false;
             delete bill.paidAmount;
             delete bill.paidDate;
             delete bill.paidBy;
+            delete bill.demoCheckingAdjusted;
             saveData('fin_bills', finBills);
             renderFinance();
         }
@@ -6402,8 +6535,11 @@
                 if (!name) { alert('Give the account a name'); return; }
                 if (editingId) {
                     const a = finAccounts.find(x => x.id === editingId);
-                    if (a) { a.name = name; a.type = type; a.balance = balance; }
-                    // (bucket sync happens automatically via syncBucketsToAccounts in renderFinance)
+                    if (a) {
+                        a.name = name;
+                        a.type = type;
+                        syncManualBalanceFields(a, balance);
+                    }
                 } else {
                     finAccounts.push({ id: genId(), name, type, balance });
                 }
@@ -6429,7 +6565,7 @@
             } else if (currentFormType === 'income') {
                 const source = document.getElementById('ff-name').value.trim();
                 const amount = parseFloat(document.getElementById('ff-amount').value) || 0;
-                const frequency = document.getElementById('ff-frequency').value;
+                const frequency = normalizeIncomeFrequency(document.getElementById('ff-frequency').value);
                 const nextDate = document.getElementById('ff-date').value;
                 if (!source) { alert('Name the income source'); return; }
                 if (editingId) {
@@ -6626,7 +6762,7 @@
         // --- LOAD ALL CHECKBOXES ---
         function loadCheckboxes() {
             const states = loadData('checkboxes');
-            if (!states) return;
+            if (!Array.isArray(states)) return;
             const boxes = document.querySelectorAll('.todo-item input[type="checkbox"]');
             boxes.forEach((box, i) => {
                 if (states[i] !== undefined) box.checked = states[i];
@@ -6644,7 +6780,7 @@
         // --- LOAD ALL TEXT AREAS ---
         function loadTextAreas() {
             const texts = loadData('textareas');
-            if (!texts) return;
+            if (!Array.isArray(texts)) return;
             const areas = document.querySelectorAll('.note-box, .brain-dump-box');
             areas.forEach((a, i) => {
                 if (texts[i] !== undefined) a.value = texts[i];
@@ -7046,7 +7182,7 @@
         // ========================================================================
         // Floating button — one click logs current time + optional label
 
-        let timestamps = loadData('timestamps') || [];
+        let timestamps = Array.isArray(loadData('timestamps')) ? loadData('timestamps') : [];
 
         // --- Log a timestamp ---
         function logTimestamp() {
@@ -7137,13 +7273,10 @@
 
         // --- Browser online / offline detection ---
         window.addEventListener('offline', () => {
-            setStatus('offline', 'Offline — running on saved data. Changes will sync when reconnected.');
+            setStatus('offline', 'Offline — demo still works locally. Weather will refresh when you reconnect.');
         });
         window.addEventListener('online', () => {
-            setStatus('ok', 'Back online — syncing...', true);
-            // Re-fetch everything that might have been stale
-            syncFromCloud();
-            fetchBankBalances();
+            setStatus('ok', 'Back online — refreshing weather.', true);
             getWeather();
             getPollen();
         });
@@ -7327,12 +7460,14 @@
             nextNextPay.setDate(nextNextPay.getDate() + bucketSettings.payFrequency);
 
             let needed = 0;
+            normalizeBillStatuses();
             finBills.filter(b => {
                 // Use status field (new format) — only skip bills confirmed paid by bank
                 if (b.status === 'processed') return false;  // bank confirmed, done
                 if (b.status) return true;                   // unpaid or pending — money must be there
                 return !b.paid;                              // old format fallback
             }).forEach(b => {
+                if (!b.dueDate) return;
                 const due = new Date(b.dueDate + 'T00:00:00');
                 // If bill is due before next next payday, it needs to be covered NOW
                 if (due <= nextNextPay) {
@@ -7348,7 +7483,7 @@
             const title = document.getElementById('fin-form-title');
             const fields = document.getElementById('fin-form-fields');
             const todayStr = new Date().toISOString().split('T')[0];
-            const fixedNeeded = calcFixedNeeded();
+            const fixedNeeded = Math.max(0, calcFixedNeeded() - (buckets.fixed.balance || 0));
 
             title.textContent = '💰 Log Paycheck';
             fields.innerHTML = `
@@ -7361,7 +7496,7 @@
                 <div style="background:#1a1216; border-radius:8px; padding:12px; margin:10px 0;">
                     <p style="font-size:12px; color:#9a8a92; margin-bottom:8px;">Here's how it'll split:</p>
                     <div style="font-size:13px; color:#d4ccc8; line-height:1.8;" id="paycheck-preview">
-                        <div>🔴 <strong>Fixed (bills):</strong> <span style="color:#d4849a;">$${fixedNeeded.toFixed(2)}</span></div>
+                        <div>🔴 <strong>Fixed (still needed):</strong> <span style="color:#d4849a;">$${fixedNeeded.toFixed(2)}</span></div>
                         <div>🟢 <strong>Safety:</strong> <span style="color:#b48db5;">$${bucketSettings.safetyAmount.toFixed(2)}</span></div>
                         <div>🟡 <strong>Life:</strong> <span style="color:#e8b84b;">$${bucketSettings.lifeBudget.toFixed(2)}</span></div>
                         <div>🟣 <strong>Dopamine:</strong> <span style="color:#BA55D3;">leftover</span></div>
@@ -7392,7 +7527,7 @@
 
         // --- Calculate how a paycheck splits across buckets ---
         function calculatePaycheckSplit(amount) {
-            const fixedNeeded = calcFixedNeeded();
+            const fixedNeeded = Math.max(0, calcFixedNeeded() - (buckets.fixed.balance || 0));
             let remaining = amount;
             let shortfall = 0;
 
@@ -7523,6 +7658,7 @@
 
         // --- Render the Check-the-Stove page ---
         function renderStove() {
+            normalizeBillStatuses();
             // Life bucket balance
             const lifeEl = document.getElementById('stove-life');
             lifeEl.textContent = fmt$(buckets.life.balance);
@@ -7534,7 +7670,9 @@
             dopEl.style.color = buckets.dopamine.balance <= 0 ? '#d4849a' : buckets.dopamine.balance < 50 ? '#e8b84b' : '#BA55D3';
 
             // Bills covered through — find the last bill that Fixed can cover
-            const unpaidBills = finBills.filter(b => !b.paid).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+            const unpaidBills = finBills
+                .filter(b => b.status !== 'processed')
+                .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
             let coveredThrough = '—';
             let runningTotal = 0;
             for (const bill of unpaidBills) {
@@ -7546,7 +7684,7 @@
                     break;
                 }
             }
-            if (unpaidBills.length === 0 || (finBills.length > 0 && finBills.every(b => b.paid))) {
+            if (unpaidBills.length === 0 || (finBills.length > 0 && finBills.every(b => b.status === 'processed'))) {
                 coveredThrough = 'All paid!';
             }
             document.getElementById('stove-bills-covered').textContent = coveredThrough;
@@ -7714,25 +7852,40 @@
                 saveData('automation_fix_v2_1', true);
             }
 
-            if (finBills.length === 0) return;
-
-            let changed = false;
+            let billsChanged = false;
+            let incomeChanged = false;
 
             // Step 1: Make sure every bill has a status field
             // (old format used paid:true/false, new format uses status string)
             finBills.forEach(b => {
                 if (!b.status) {
                     b.status = b.paid ? 'processed' : 'unpaid';
-                    changed = true;
+                    billsChanged = true;
+                } else if (b.status === 'paid') {
+                    b.status = 'processed';
+                    billsChanged = true;
                 }
                 const normalizedRecurring = normalizeRecurringLabel(b.recurring);
                 if (b.recurring !== normalizedRecurring) {
                     b.recurring = normalizedRecurring;
-                    changed = true;
+                    billsChanged = true;
                 }
             });
 
-            if (changed) saveData('fin_bills', finBills);
+            finIncome.forEach(i => {
+                if (!i.source && i.name) {
+                    i.source = i.name;
+                    incomeChanged = true;
+                }
+                const normalizedFrequency = normalizeIncomeFrequency(i.frequency);
+                if (normalizedFrequency && i.frequency !== normalizedFrequency) {
+                    i.frequency = normalizedFrequency;
+                    incomeChanged = true;
+                }
+            });
+
+            if (billsChanged) saveData('fin_bills', finBills);
+            if (incomeChanged) saveData('fin_income', finIncome);
         }
 
         // --- APPLY BANK DATA — shared processing used by all data sources ---
@@ -7831,6 +7984,13 @@
         // --- FETCH BANK BALANCES ---
         // Priority: 1) Local Python server  2) GitHub Actions cloud sync (Supabase)  3) stale warning
         async function fetchBankBalances(manual = false) {
+            if (DEMO_LOCAL_PLAYGROUND) {
+                if (manual) {
+                    setStatus('info', 'Bank sync is off in demo mode. Edit balances manually or load sample data.', true);
+                }
+                return false;
+            }
+
             if (manual) setStatus('info', 'Refreshing bank data...');
             // ── 1. Try local server (PC only, freshest data) ─────────────────
             try {
@@ -7918,7 +8078,7 @@
                 // Update checking account balance
                 const checking = finAccounts.find(a => a.type === 'Checking' || (a.name && a.name.toLowerCase().includes('checking')));
                 if (checking) {
-                    checking.balance += amount;
+                    syncManualBalanceFields(checking, getDisplayBalance(checking) + amount);
                     saveData('fin_accounts', finAccounts);
                 }
 
@@ -7972,7 +8132,7 @@
                 // Also deduct from checking
                 const checking = finAccounts.find(a => a.type === 'Checking' || (a.name && a.name.toLowerCase().includes('checking')));
                 if (checking) {
-                    checking.balance -= amount;
+                    syncManualBalanceFields(checking, getDisplayBalance(checking) - amount);
                     saveData('fin_accounts', finAccounts);
                 }
 
@@ -8038,7 +8198,7 @@
 
             // Checking balance only (not combined with savings)
             const rnChecking = finAccounts.find(a => a.type === 'Checking' || (a.name && a.name.toLowerCase().includes('checking')));
-            const rnCheckBal = rnChecking ? rnChecking.balance : 0;
+            const rnCheckBal = rnChecking ? getDisplayBalance(rnChecking) : 0;
             safeSet('fin-checking-balance', fmt$(rnCheckBal), 'fs-value' + (rnCheckBal < 0 ? ' negative' : ''));
 
             // Spendable = Life + Dopamine buckets (what you can actually spend)
@@ -8077,6 +8237,7 @@
                         delete b.paidAmount; // clear payment info
                         delete b.paidDate;
                         delete b.paidBy;
+                        delete b.demoCheckingAdjusted;
                         // Advance the due date to this month (same day, new month)
                         if (b.dueDate) {
                             const oldDue = new Date(b.dueDate + 'T00:00:00');
@@ -8123,25 +8284,43 @@
             }
 
             // ----- 4. AUTO-MARK AUTOPAY BILLS -----
-            // If a bill is set to auto-pay and its due date has passed (or is today),
-            // mark it as PENDING — the bank handles the money, we just track it.
-            // NO balance deductions — SimpleFIN bank balance is the source of truth.
+            // In demo local mode, auto-pay behaves like a local bank action:
+            // mark it processed and deduct it once from checking.
             let autopayCount = 0;
+            let autopayCheckingChanged = false;
+            let autopayTransactionsChanged = false;
+            const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
             finBills.forEach(b => {
                 if (b.autoPay && b.status === 'unpaid' && b.dueDate) {
                     const due = new Date(b.dueDate + 'T00:00:00');
                     if (due <= today) {
                         b.paid = true;
-                        b.status = 'pending'; // pending until confirmed by bank
+                        b.status = DEMO_LOCAL_PLAYGROUND ? 'processed' : 'pending';
                         b.paidAmount = b.amount;
                         b.paidDate = due.toISOString().split('T')[0];
                         b.paidBy = 'autopay';
+                        if (DEMO_LOCAL_PLAYGROUND && !b.demoCheckingAdjusted) {
+                            if (adjustCheckingBalance(-(b.paidAmount || 0))) {
+                                autopayCheckingChanged = true;
+                            }
+                            b.demoCheckingAdjusted = true;
+                            finTransactions.push({
+                                id: genId(),
+                                description: 'Auto-pay bill: ' + b.name,
+                                amount: -(b.paidAmount || 0),
+                                category: 'Bills',
+                                date: b.paidDate
+                            });
+                            autopayTransactionsChanged = true;
+                        }
                         autopayCount++;
                     }
                 }
             });
             if (autopayCount > 0) {
                 saveData('fin_bills', finBills);
+                if (autopayCheckingChanged) saveData('fin_accounts', finAccounts);
+                if (autopayTransactionsChanged) saveData('fin_transactions', finTransactions);
                 changed = true;
             }
 
@@ -8202,56 +8381,9 @@
         async function initApp() {
             // Setup back-to-top button (global across all tabs)
             setupBackToTop();
+            setDemoHealthBadge();
 
-            // Step 0: Install security pod (catches errors from this point on)
-            if (window.SecurityPod) {
-                SecurityPod.install({
-                    supabaseClient: supabaseClient,
-                    supabaseUrl: SUPABASE_URL,
-                    supabaseAnonKey: SUPABASE_ANON_KEY,
-                    setStatus: setStatus,
-                    onHealthChange: refreshHealthUI
-                });
-
-                // Trigger initial health check UI
-                refreshHealthUI(SecurityPod.getHealth());
-
-                // Run RLS probe in background
-                SecurityPod.probeRLS();
-
-                // Flush any buffered logs from last session
-                SecurityPod.flushLogs();
-            }
-
-            // Step 1: Check if logged in — redirect to login if not
-            try {
-                const { data: { user } } = await supabaseClient.auth.getUser();
-                if (!user) {
-                    window.location.href = 'login.html';
-                    return;
-                }
-                const cloudHadData = await syncFromCloud();
-                if (!cloudHadData) {
-                    await migrateLocalToCloud();
-                }
-            } catch (e) {
-                console.log('Auth check failed:', e.message);
-                window.location.href = 'login.html';
-                return;
-            }
-
-            // Step 1.5: Verify database security (runs in background, doesn't block app)
-            if (window.SecurityPod) {
-                SecurityPod.probeRLS().then(function(result) {
-                    if (!result.passed) {
-                        // setStatus('error', 'Security check failed — some database protections may be missing. Check console.'); // Demo: suppress RLS probe failure
-                    }
-                    // Flush any buffered log entries to cloud
-                    SecurityPod.flushLogs();
-                });
-            }
-
-            // Step 2: Re-read data from localStorage (cloud sync may have updated it)
+            // Demo mode is local-only: load playground state and skip auth/cloud/bank boot.
             finAccounts = loadData('fin_accounts') || [];
             finBills = loadData('fin_bills') || [];
             finIncome = loadData('fin_income') || [];
@@ -8264,7 +8396,6 @@
             runBillMigrations();
             runAutomations();
 
-            await fetchBankBalances();
             getWeather();
             getPollen();
 

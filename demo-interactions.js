@@ -1138,10 +1138,9 @@
     function enhanceSecurityBadge() {
         var badge = document.getElementById('security-health-badge');
         if (!badge) return;
-        // In demo mode, show error state (pulsing red) since real security checks don't run
-        badge.className = 'health-error';
+        badge.className = 'health-demo';
         badge.style.cursor = 'pointer';
-        badge.title = 'What is this dot?';
+        badge.title = 'Demo mode status';
         badge.addEventListener('click', function (e) {
             e.stopPropagation();
             var existing = q('.demo-badge-bubble');
@@ -1150,12 +1149,12 @@
             bubble.className = 'demo-info-bubble demo-badge-bubble';
             bubble.style.cssText = 'max-width:260px; line-height:1.55; font-size:12px;';
             bubble.innerHTML =
-                '<strong style="display:block; color:#fff; margin-bottom:6px;">Security Health Indicator</strong>' +
-                'In the live version, this dot tells you the health of your data sync in real time:<br><br>' +
-                '<span style="color:#6bbf7b;">&#9679; Green</span> — data is syncing cleanly with your private database<br>' +
-                '<span style="color:#e8b84b;">&#9679; Yellow</span> — data is getting stale, sync is slow<br>' +
-                '<span style="color:#d4849a;">&#9679; Red</span> — connection lost or auth error<br><br>' +
-                'In this demo there\'s no live sync, so it sits quiet.';
+                '<strong style="display:block; color:#fff; margin-bottom:6px;">Demo Mode</strong>' +
+                'This copy is a local playground.<br><br>' +
+                '<span style="color:#8fd6b5;">&#9679; Mint</span> — the demo is running locally as expected<br>' +
+                '<span style="color:#d4ccc8;">Weather</span> — still refreshes live<br>' +
+                '<span style="color:#d4ccc8;">Bank/cloud/security probes</span> — intentionally off in this demo<br><br>' +
+                'So this dot is not grading real security. It is just telling you the demo is in playground mode.';
             document.body.appendChild(bubble);
             var rect = badge.getBoundingClientRect();
             bubble.style.left = Math.min(window.innerWidth - 280, Math.max(8, rect.left - 200)) + 'px';
