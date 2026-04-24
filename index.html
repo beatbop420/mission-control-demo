@@ -3526,6 +3526,13 @@
 
         function loadWorkScheduleSafe() {
             try {
+                const repairFlag = localStorage.getItem('mc_work_schedule_repair_v1');
+                if (!repairFlag) {
+                    localStorage.removeItem('mc_work_schedule');
+                    localStorage.setItem('mc_work_schedule_repair_v1', JSON.stringify(true));
+                    return null;
+                }
+
                 const raw = localStorage.getItem('mc_work_schedule');
                 if (!raw) return null;
                 // If this blob got stuffed with giant junk during testing, don't even parse it.
