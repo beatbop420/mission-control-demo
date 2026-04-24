@@ -3513,6 +3513,100 @@
         }
 
         // ========== WORK CALENDAR ==========
+        function sanitizeWorkText(value, maxLen) {
+            if (value == null) return '';
+            const cleaned = String(value)
+                .replace(/<[^>]*>/g, ' ')
+                .replace(/[\u0000-\u001F\u007F]+/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+            if (!maxLen || cleaned.length <= maxLen) return cleaned;
+            return cleaned.slice(0, maxLen).trim();
+        }
+
+        function loadWorkScheduleSafe() {
+            try {
+                const raw = localStorage.getItem('mc_work_schedule');
+                if (!raw) return null;
+                // If this blob got stuffed with giant junk during testing, don't even parse it.
+                if (raw.length > 25000) {
+                    console.warn('WORK SCHEDULE RESET: payload too large');
+                    localStorage.removeItem('mc_work_schedule');
+                    return null;
+                }
+                return JSON.parse(raw);
+            } catch (err) {
+                console.warn('WORK SCHEDULE RESET:', err);
+                localStorage.removeItem('mc_work_schedule');
+                return null;
+            }
+        }
+
+        function normalizeWorkSchedule(raw) {
+            if (raw == null) {
+                return { data: { checklist: [] }, changed: false };
+            }
+
+            if (typeof raw !== 'object' || Array.isArray(raw)) {
+                return { data: { checklist: [] }, changed: true };
+            }
+
+            const normalized = { checklist: [] };
+            let changed = false;
+
+            if (!Array.isArray(raw.checklist)) {
+                changed = true;
+            } else {
+                if (raw.checklist.length > 40) changed = true;
+                raw.checklist.slice(0, 40).forEach(item => {
+                    let text = '';
+                    let done = false;
+
+                    if (typeof item === 'string') {
+                        text = sanitizeWorkText(item, 140);
+                        changed = true;
+                    } else if (item && typeof item === 'object' && !Array.isArray(item)) {
+                        text = sanitizeWorkText(item.text, 140);
+                        done = !!item.done;
+                        if (item.text !== text || !!item.done !== done || Object.keys(item).some(key => key !== 'text' && key !== 'done')) {
+                            changed = true;
+                        }
+                    } else {
+                        changed = true;
+                        return;
+                    }
+
+                    if (!text) {
+                        changed = true;
+                        return;
+                    }
+
+                    normalized.checklist.push({ text, done });
+                });
+            }
+
+            const rawKeys = Object.keys(raw);
+            if (rawKeys.length > 120) changed = true;
+            rawKeys.slice(0, 120).forEach(key => {
+                if (key === 'checklist') return;
+                if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) {
+                    changed = true;
+                    return;
+                }
+
+                const value = sanitizeWorkText(raw[key], 80);
+                if (!value) {
+                    if (raw[key]) changed = true;
+                    return;
+                }
+
+                normalized[key] = value;
+                if (raw[key] !== value) changed = true;
+            });
+
+            return { data: normalized, changed };
+        }
+
         function renderWorkCalendar() {
             const monthEl = document.getElementById('work-month');
             const cal = document.getElementById('work-calendar');
@@ -3520,28 +3614,10 @@
             if (!cal || !monthEl || !checklistEl) return;
 
             const today = new Date();
-            const workData = loadData('work_schedule') || {};
-            const checklist = Array.isArray(workData.checklist) ? workData.checklist : [];
-
-            // Clean up any XSS payloads saved from an earlier vulnerable version.
-            // Strips anything that looks like an HTML tag so old bad data can't bite us.
-            let sanitizerTouched = false;
-            checklist.forEach(item => {
-                if (item && typeof item.text === 'string' && /<[^>]+>/.test(item.text)) {
-                    item.text = item.text.replace(/<[^>]+>/g, '').trim() || '(cleared)';
-                    sanitizerTouched = true;
-                }
-            });
-            // Also clean calendar day entries (stored as workData['2026-04-23'] etc.)
-            Object.keys(workData).forEach(key => {
-                if (key === 'checklist') return;
-                if (typeof workData[key] === 'string' && /<[^>]+>/.test(workData[key])) {
-                    workData[key] = workData[key].replace(/<[^>]+>/g, '').trim();
-                    sanitizerTouched = true;
-                }
-            });
-            if (sanitizerTouched) {
-                workData.checklist = checklist;
+            const normalized = normalizeWorkSchedule(loadWorkScheduleSafe());
+            const workData = normalized.data;
+            const checklist = workData.checklist;
+            if (normalized.changed) {
                 saveData('work_schedule', workData);
             }
 
@@ -3581,7 +3657,12 @@
                 dayEl.addEventListener('click', () => {
                     const input = prompt(`Enter work status for ${dayLabel}, ${dayOfMonth}:`, entry);
                     if (input !== null) {
-                        workData[dateStr] = input.trim();
+                        const cleaned = sanitizeWorkText(input, 80);
+                        if (cleaned) {
+                            workData[dateStr] = cleaned;
+                        } else {
+                            delete workData[dateStr];
+                        }
                         saveData('work_schedule', workData);
                         renderWorkCalendar();
                     }
@@ -3620,30 +3701,31 @@
 
         function addWorkChecklistItem() {
             const text = prompt('Add on-call task:');
-            if (text && text.trim()) {
-                const workData = loadData('work_schedule') || {};
-                if (!Array.isArray(workData.checklist)) workData.checklist = [];
-                workData.checklist.push({ text: text.trim(), done: false });
+            const cleaned = sanitizeWorkText(text, 140);
+            if (cleaned) {
+                const workData = normalizeWorkSchedule(loadWorkScheduleSafe()).data;
+                workData.checklist.push({ text: cleaned, done: false });
                 saveData('work_schedule', workData);
                 renderWorkCalendar();
             }
         }
 
         function editWorkChecklistItem(idx) {
-            const workData = loadData('work_schedule') || {};
-            if (!Array.isArray(workData.checklist) || !workData.checklist[idx]) return;
+            const workData = normalizeWorkSchedule(loadWorkScheduleSafe()).data;
+            if (!workData.checklist[idx]) return;
             const item = workData.checklist[idx];
             const newText = prompt('Edit task:', item.text);
-            if (newText !== null && newText.trim()) {
-                workData.checklist[idx].text = newText.trim();
+            const cleaned = sanitizeWorkText(newText, 140);
+            if (cleaned) {
+                workData.checklist[idx].text = cleaned;
                 saveData('work_schedule', workData);
                 renderWorkCalendar();
             }
         }
 
         function toggleWorkChecklistItem(idx, event) {
-            const workData = loadData('work_schedule') || {};
-            if (!Array.isArray(workData.checklist) || !workData.checklist[idx]) return;
+            const workData = normalizeWorkSchedule(loadWorkScheduleSafe()).data;
+            if (!workData.checklist[idx]) return;
             const wasChecked = workData.checklist[idx].done;
             workData.checklist[idx].done = !workData.checklist[idx].done;
             saveData('work_schedule', workData);
@@ -3662,8 +3744,8 @@
 
         function deleteWorkChecklistItem(idx) {
             if (confirm('Delete this task?')) {
-                const workData = loadData('work_schedule') || {};
-                if (!Array.isArray(workData.checklist) || !workData.checklist[idx]) return;
+                const workData = normalizeWorkSchedule(loadWorkScheduleSafe()).data;
+                if (!workData.checklist[idx]) return;
                 workData.checklist.splice(idx, 1);
                 saveData('work_schedule', workData);
                 renderWorkCalendar();
@@ -5876,8 +5958,9 @@
                     payoff.months === 0 ? 'Paid off!' :
                     (payoff.months > 12 ? Math.floor(payoff.months/12) + 'yr ' + (payoff.months%12) + 'mo' : payoff.months + ' months');
 
-                // Badge class based on type
-                const badgeClass = (d.type || '').toLowerCase().replace(/\s+/g, '-');
+                // Badge class based on type — strict allowlist (a-z, 0-9, dash) so user
+                // input can't break out of the class attribute with quotes or angle brackets.
+                const badgeClass = (d.type || '').toLowerCase().replace(/[^a-z0-9-]/g, '-');
 
                 return `
                 <div class="finance-row" style="flex-wrap:wrap;">
