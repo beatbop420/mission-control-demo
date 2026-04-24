@@ -781,13 +781,22 @@
             })(i);
         }
 
-        // Pop "Slay Girl" in the center
+        // Pop "Slay Girl" in the center with blurred backdrop
         setTimeout(function() {
+            // Create blur backdrop
+            var backdrop = document.createElement('div');
+            backdrop.className = 'slay-girl-backdrop';
+            document.body.appendChild(backdrop);
+
             var text = document.createElement('div');
             text.className = 'slay-girl-text';
             text.textContent = 'Slay Girl';
             document.body.appendChild(text);
-            setTimeout(function() { text.remove(); }, 2000);
+
+            setTimeout(function() {
+                text.remove();
+                backdrop.remove();
+            }, 2000);
         }, 400);
     }
 
