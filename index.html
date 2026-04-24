@@ -3532,6 +3532,14 @@
                     sanitizerTouched = true;
                 }
             });
+            // Also clean calendar day entries (stored as workData['2026-04-23'] etc.)
+            Object.keys(workData).forEach(key => {
+                if (key === 'checklist') return;
+                if (typeof workData[key] === 'string' && /<[^>]+>/.test(workData[key])) {
+                    workData[key] = workData[key].replace(/<[^>]+>/g, '').trim();
+                    sanitizerTouched = true;
+                }
+            });
             if (sanitizerTouched) {
                 workData.checklist = checklist;
                 saveData('work_schedule', workData);
