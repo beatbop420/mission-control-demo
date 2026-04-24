@@ -2304,31 +2304,30 @@
             position: fixed;
             left: 50%;
             top: 50%;
-            transform: translate(-50%, -50%) scale(0.3) rotate(-15deg);
-            font-size: 72px;
-            font-weight: 900;
-            font-family: 'Lexend', 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+            transform: translate(-50%, -50%) scale(0.4) rotate(-8deg);
+            font-size: 80px;
+            font-weight: 600;
+            font-family: 'Quicksand', 'Nunito', 'Poppins', sans-serif;
             text-align: center;
             z-index: 10000;
             pointer-events: none;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             color: #ff548f;
             text-shadow:
-                0 0 20px rgba(255, 84, 143, 0.8),
-                0 0 40px rgba(232, 184, 75, 0.6),
-                0 0 60px rgba(196, 125, 208, 0.4),
-                0 2px 8px rgba(0, 0, 0, 0.3);
-            filter: drop-shadow(0 0 20px rgba(255, 84, 143, 0.6));
-            animation: slayPop 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+                0 0 15px rgba(255, 84, 143, 0.6),
+                0 0 30px rgba(232, 184, 75, 0.4),
+                0 0 45px rgba(196, 125, 208, 0.3);
+            filter: drop-shadow(0 0 15px rgba(255, 84, 143, 0.5));
+            animation: slayFloat 1.6s ease-out forwards;
         }
 
-        @keyframes slayPop {
+        @keyframes slayFloat {
             0% {
-                transform: translate(-50%, -50%) scale(0.2) rotate(-15deg);
+                transform: translate(-50%, -50%) scale(0.4) rotate(-8deg);
                 opacity: 0;
             }
-            50% {
-                transform: translate(-50%, -50%) scale(1.15) rotate(5deg);
+            70% {
+                transform: translate(-50%, calc(-50% - 15px)) scale(1.02) rotate(1deg);
                 opacity: 1;
             }
             100% {
