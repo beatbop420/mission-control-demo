@@ -676,6 +676,13 @@
         });
 
         makeDraggable(wrap);
+
+        // Close demo bar when clicking outside
+        document.addEventListener('click', function closeOnOutsideClick(e) {
+            if (!wrap.contains(e.target)) {
+                wrap.classList.add('collapsed');
+            }
+        });
     }
 
     function actionButton(action, label, detail) {
