@@ -876,7 +876,7 @@
     function castMagicalIncantation() {
         var text = document.createElement('div');
         text.className = 'bippity-boppity-text fade-in';
-        text.textContent = '✨ Bippity Boppity Boo ✨';
+        // text.textContent = '✨ Bippity Boppity Boo ✨';  // Removed on 2026-04-24
         text.style.position = 'fixed';
         text.style.zIndex = '999999';
         text.style.pointerEvents = 'none';

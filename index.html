@@ -4472,6 +4472,37 @@
             return d.innerHTML;
         }
 
+        function encActionArg(value) {
+            return encodeURIComponent(String(value == null ? '' : value));
+        }
+
+        function decActionArg(value) {
+            try {
+                return decodeURIComponent(String(value == null ? '' : value));
+            } catch (err) {
+                return '';
+            }
+        }
+
+        function safeClassToken(value, fallback) {
+            const token = String(value == null ? '' : value)
+                .toLowerCase()
+                .replace(/[^a-z0-9-]/g, '-')
+                .replace(/^-+|-+$/g, '');
+            return token || (fallback || 'misc');
+        }
+
+        function normalizeSeverityLevel(value) {
+            const level = parseInt(value, 10);
+            if (!Number.isFinite(level)) return 1;
+            return Math.min(5, Math.max(1, level));
+        }
+
+        function normalizeCycleFlowValue(value) {
+            const flow = String(value == null ? '' : value).toLowerCase();
+            return ['none', 'spotting', 'light', 'medium', 'heavy'].includes(flow) ? flow : 'none';
+        }
+
         // --- Helper: save data locally AND push to cloud ---
         // localStorage happens instantly. Cloud sync is debounced — waits 2 seconds
         // after the LAST save for each key, so rapid typing doesn't spam the database.
@@ -4582,7 +4613,27 @@
         // --- Helper: load data by name (reads from localStorage for speed) ---
         function loadData(key) {
             const raw = localStorage.getItem('mc_' + key);
-            return raw ? JSON.parse(raw) : null;
+            if (!raw) return null;
+            try {
+                return JSON.parse(raw);
+            } catch (err) {
+                console.warn('DEMO DATA RESET:', key, err);
+                localStorage.removeItem('mc_' + key);
+                return null;
+            }
+        }
+
+        function loadArrayData(key) {
+            const value = loadData(key);
+            return Array.isArray(value) ? value : [];
+        }
+
+        function loadObjectData(key, fallback) {
+            const value = loadData(key);
+            if (value && typeof value === 'object' && !Array.isArray(value)) {
+                return value;
+            }
+            return fallback;
         }
 
         // Bridge for pods — lets assistant.js (and future pods) talk to the dashboard
@@ -4737,35 +4788,35 @@
         // debts: [{id, name, type, totalOwed, currentBalance, apr, minPayment, dueDate, originalBalance, notes}]
         // emergencyFund: {goal, current}
 
-        let finAccounts = loadData('fin_accounts') || [];
-        let finBills = loadData('fin_bills') || [];
-        let finIncome = loadData('fin_income') || [];
-        let finTransactions = loadData('fin_transactions') || [];
-        let finDebts = loadData('fin_debts') || [];
-        let finSpending = loadData('fin_spending') || [];
-        let finEmergencyFund = loadData('fin_emergency') || { goal: 0, current: 0 };
+        let finAccounts = loadArrayData('fin_accounts');
+        let finBills = loadArrayData('fin_bills');
+        let finIncome = loadArrayData('fin_income');
+        let finTransactions = loadArrayData('fin_transactions');
+        let finDebts = loadArrayData('fin_debts');
+        let finSpending = loadArrayData('fin_spending');
+        let finEmergencyFund = loadObjectData('fin_emergency', { goal: 0, current: 0 });
 
         // --- SINKING FUNDS — user-defined savings pools for irregular expenses ---
-        let sinkingFunds = loadData('sinking_funds') || [];
+        let sinkingFunds = loadArrayData('sinking_funds');
 
         // --- BUCKET SYSTEM DATA (loaded early so everything can use it) ---
-        let buckets = loadData('buckets') || {
+        let buckets = loadObjectData('buckets', {
             fixed: { balance: 0, needed: 0 },
             safety: { balance: 0, goal: 0 },
             life: { balance: 0, budgetPerPaycheck: 0 },
             dopamine: { balance: 0, budgetPerPaycheck: 0 }
-        };
+        });
 
-        let bucketSettings = loadData('bucket_settings') || {
+        let bucketSettings = loadObjectData('bucket_settings', {
             safetyAmount: 0,
             lifeBudget: 0,
             dopamineBudget: 0,
             cashWithdraw: 0,
             nextPayday: new Date().toISOString().split('T')[0],
             payFrequency: 14
-        };
+        });
 
-        let paycheckLog = loadData('paycheck_log') || [];
+        let paycheckLog = loadArrayData('paycheck_log');
 
         function saveBuckets() {
             saveData('buckets', buckets);
@@ -4820,7 +4871,9 @@
                 list.innerHTML = '<p style="color:#6b5660; font-size:13px; padding:10px 0;">No accounts yet. Add your checking, savings, cash, etc.</p>';
                 return;
             }
-            list.innerHTML = finAccounts.map(a => `
+            list.innerHTML = finAccounts.map(a => {
+                const actionId = encActionArg(a.id);
+                return `
                 <div class="finance-row">
                     <div class="fr-left">
                         <span class="fr-name">${esc(a.name)}</span>
@@ -4828,11 +4881,11 @@
                     </div>
                     <div class="fr-right">
                         <span class="fr-amount ${getDisplayBalance(a) >= 0 ? 'positive' : 'outgoing'}">$${Math.abs(getDisplayBalance(a)).toFixed(2)}</span>
-                        <button class="finance-btn-sm" onclick="editFinanceItem('account','${a.id}')">edit</button>
-                        <button class="finance-btn-sm" onclick="deleteFinanceItem('account','${a.id}')">x</button>
+                        <button class="finance-btn-sm" onclick="editFinanceItem('account',decActionArg('${actionId}'))">edit</button>
+                        <button class="finance-btn-sm" onclick="deleteFinanceItem('account',decActionArg('${actionId}'))">x</button>
                     </div>
                 </div>
-            `).join('');
+            `; }).join('');
         }
 
         // --- BILLS ---
@@ -4865,6 +4918,7 @@
                 const due = b.dueDate ? new Date(b.dueDate + 'T00:00:00') : null;
                 const now = new Date();
                 const daysUntil = due ? Math.ceil((due - now) / (1000 * 60 * 60 * 24)) : 999;
+                const actionId = encActionArg(b.id);
                 let dueLabel = '';
                 let rowClass = 'finance-row';
                 let buttons = '';
@@ -4873,14 +4927,14 @@
                     const via = b.paidBy ? ' \u00b7 ' + esc(b.paidBy) : '';
                     dueLabel = '<span class="status-processed">Processed' + via + '</span>';
                     rowClass += ' bill-processed';
-                    buttons = '<button class="finance-btn-sm" onclick="editFinanceItem(\'bill\',\'' + b.id + '\')">edit</button>';
+                    buttons = '<button class="finance-btn-sm" onclick="editFinanceItem(\'bill\',decActionArg(\'' + actionId + '\'))">edit</button>';
                 } else if (b.status === 'pending') {
                     dueLabel = '<span class="status-pending">Pending $' + (b.paidAmount || b.amount).toFixed(2) + '</span>';
                     rowClass += ' bill-pending';
-                    buttons = '<button class="finance-btn-sm" onclick="markBillProcessed(\'' + b.id + '\')" style="border-color:#6bbf7b;color:#6bbf7b;">confirm</button>' +
-                              '<button class="finance-btn-sm" onclick="revertPendingBill(\'' + b.id + '\')">undo</button>' +
-                              '<button class="finance-btn-sm" onclick="editFinanceItem(\'bill\',\'' + b.id + '\')">edit</button>' +
-                              '<button class="finance-btn-sm" onclick="deleteFinanceItem(\'bill\',\'' + b.id + '\')">x</button>';
+                    buttons = '<button class="finance-btn-sm" onclick="markBillProcessed(decActionArg(\'' + actionId + '\'))" style="border-color:#6bbf7b;color:#6bbf7b;">confirm</button>' +
+                              '<button class="finance-btn-sm" onclick="revertPendingBill(decActionArg(\'' + actionId + '\'))">undo</button>' +
+                              '<button class="finance-btn-sm" onclick="editFinanceItem(\'bill\',decActionArg(\'' + actionId + '\'))">edit</button>' +
+                              '<button class="finance-btn-sm" onclick="deleteFinanceItem(\'bill\',decActionArg(\'' + actionId + '\'))">x</button>';
                 } else {
                     rowClass += ' bill-unpaid';
                     if (daysUntil < 0) {
@@ -4890,9 +4944,9 @@
                     } else if (due) {
                         dueLabel = 'Due ' + due.toLocaleDateString('en-US', {month:'short', day:'numeric'});
                     }
-                    buttons = '<button class="finance-btn-sm" onclick="markBillPaid(\'' + b.id + '\')">paid</button>' +
-                              '<button class="finance-btn-sm" onclick="editFinanceItem(\'bill\',\'' + b.id + '\')">edit</button>' +
-                              '<button class="finance-btn-sm" onclick="deleteFinanceItem(\'bill\',\'' + b.id + '\')">x</button>';
+                    buttons = '<button class="finance-btn-sm" onclick="markBillPaid(decActionArg(\'' + actionId + '\'))">paid</button>' +
+                              '<button class="finance-btn-sm" onclick="editFinanceItem(\'bill\',decActionArg(\'' + actionId + '\'))">edit</button>' +
+                              '<button class="finance-btn-sm" onclick="deleteFinanceItem(\'bill\',decActionArg(\'' + actionId + '\'))">x</button>';
                 }
 
                 // Extra info badges
@@ -5041,7 +5095,8 @@
                         cellClass += ' due';
                         content = '$' + bill.amount.toFixed(0);
                     }
-                    html += '<div class="' + cellClass + '"' + (isDue && bill.status === 'unpaid' ? ' onclick="markBillPaid(\'' + bill.id + '\')"' : '') + '>' + content + '</div>';
+                    const actionId = encActionArg(bill.id);
+                    html += '<div class="' + cellClass + '"' + (isDue && bill.status === 'unpaid' ? ' onclick="markBillPaid(decActionArg(\'' + actionId + '\'))"' : '') + '>' + content + '</div>';
                 });
             });
             html += '</div>';
@@ -5819,6 +5874,7 @@
             finIncome.map(i => {
                 const monthly = toMonthly(i.amount || 0, i.frequency);
                 const showMonthly = i.frequency && i.frequency.toLowerCase() !== 'monthly';
+                const actionId = encActionArg(i.id);
                 return `
                 <div class="finance-row">
                     <div class="fr-left">
@@ -5827,8 +5883,8 @@
                     </div>
                     <div class="fr-right">
                         <span class="fr-amount positive">$${i.amount.toFixed(2)}</span>
-                        <button class="finance-btn-sm" onclick="editFinanceItem('income','${i.id}')">edit</button>
-                        <button class="finance-btn-sm" onclick="deleteFinanceItem('income','${i.id}')">x</button>
+                        <button class="finance-btn-sm" onclick="editFinanceItem('income',decActionArg('${actionId}'))">edit</button>
+                        <button class="finance-btn-sm" onclick="deleteFinanceItem('income',decActionArg('${actionId}'))">x</button>
                     </div>
                 </div>`; }).join('');
         }
@@ -5842,7 +5898,9 @@
             }
             // Most recent first
             const sorted = [...finTransactions].sort((a, b) => new Date(b.date) - new Date(a.date));
-            list.innerHTML = sorted.slice(0, 20).map(t => `
+            list.innerHTML = sorted.slice(0, 20).map(t => {
+                const actionId = encActionArg(t.id);
+                return `
                 <div class="finance-row">
                     <div class="fr-left">
                         <span class="fr-name">${esc(t.description)}</span>
@@ -5850,10 +5908,10 @@
                     </div>
                     <div class="fr-right">
                         <span class="fr-amount ${t.amount >= 0 ? 'positive' : 'outgoing'}">$${Math.abs(t.amount).toFixed(2)}</span>
-                        <button class="finance-btn-sm" onclick="deleteFinanceItem('transaction','${t.id}')">x</button>
+                        <button class="finance-btn-sm" onclick="deleteFinanceItem('transaction',decActionArg('${actionId}'))">x</button>
                     </div>
                 </div>
-            `).join('');
+            `; }).join('');
         }
 
         // --- DEBTS ---
@@ -5964,10 +6022,11 @@
                 const payoffLabel = payoff.months === Infinity ? 'Never at min.' :
                     payoff.months === 0 ? 'Paid off!' :
                     (payoff.months > 12 ? Math.floor(payoff.months/12) + 'yr ' + (payoff.months%12) + 'mo' : payoff.months + ' months');
+                const actionId = encActionArg(d.id);
 
                 // Badge class based on type — strict allowlist (a-z, 0-9, dash) so user
                 // input can't break out of the class attribute with quotes or angle brackets.
-                const badgeClass = (d.type || '').toLowerCase().replace(/[^a-z0-9-]/g, '-');
+                const badgeClass = safeClassToken(d.type, 'debt');
 
                 return `
                 <div class="finance-row" style="flex-wrap:wrap;">
@@ -5985,9 +6044,9 @@
                     </div>
                     <div class="fr-right">
                         <span class="fr-amount outgoing">${fmt$(d.currentBalance)}</span>
-                        <button class="finance-btn-sm" onclick="openDebtPayment('${d.id}')">payment</button>
-                        <button class="finance-btn-sm" onclick="editFinanceItem('debt','${d.id}')">edit</button>
-                        <button class="finance-btn-sm" onclick="deleteFinanceItem('debt','${d.id}')">x</button>
+                        <button class="finance-btn-sm" onclick="openDebtPayment(decActionArg('${actionId}'))">payment</button>
+                        <button class="finance-btn-sm" onclick="editFinanceItem('debt',decActionArg('${actionId}'))">edit</button>
+                        <button class="finance-btn-sm" onclick="deleteFinanceItem('debt',decActionArg('${actionId}'))">x</button>
                     </div>
                 </div>`;
             }).join('');
@@ -6268,7 +6327,9 @@
                 if (recent.length === 0) {
                     list.innerHTML = '<p style="color:#6b5660; font-size:13px; padding:4px 0;">No entries yet.</p>';
                 } else {
-                    list.innerHTML = recent.map(e => `
+                    list.innerHTML = recent.map(e => {
+                        const actionId = encActionArg(e.id);
+                        return `
                         <div class="spending-entry">
                             <div class="spending-entry-left">
                                 <span class="spending-entry-cat">${SPENDING_CATS[e.category] || '📦'} ${esc(e.category)}</span>
@@ -6276,10 +6337,10 @@
                             </div>
                             <div class="spending-entry-right">
                                 <span class="spending-entry-amount">${fmt$(e.amount)}</span>
-                                <button class="finance-btn-sm" onclick="deleteSpendingEntry('${e.id}')">x</button>
+                                <button class="finance-btn-sm" onclick="deleteSpendingEntry(decActionArg('${actionId}'))">x</button>
                             </div>
                         </div>
-                    `).join('');
+                    `; }).join('');
                 }
             }
         }
@@ -6925,7 +6986,7 @@
         // Stores daily entries: flow level, symptoms, notes
         // Predicts next period by averaging past cycle lengths
 
-        let cycleEntries = loadData('cycle_entries') || [];
+        let cycleEntries = loadArrayData('cycle_entries');
 
         // --- Currently selected flow and symptoms for today's log ---
         let currentCycleFlow = 'none';
@@ -7036,7 +7097,8 @@
         function isOnPeriod() {
             const todayStr = new Date().toISOString().split('T')[0];
             const todayEntry = cycleEntries.find(e => e.date === todayStr);
-            if (todayEntry && todayEntry.flow !== 'none') return todayEntry.flow;
+            const todayFlow = todayEntry ? normalizeCycleFlowValue(todayEntry.flow) : 'none';
+            if (todayEntry && todayFlow !== 'none') return todayFlow;
             return false;
         }
 
@@ -7047,10 +7109,11 @@
 
             // Update compact view
             const flowEl = document.getElementById('cycle-today-flow');
-            if (todayEntry && todayEntry.flow !== 'none') {
+            const todayFlow = todayEntry ? normalizeCycleFlowValue(todayEntry.flow) : 'none';
+            if (todayEntry && todayFlow !== 'none') {
                 const flowColors = { spotting: '#b0a0a8', light: '#b48db5', medium: '#e8b84b', heavy: '#d4849a' };
-                flowEl.textContent = todayEntry.flow.charAt(0).toUpperCase() + todayEntry.flow.slice(1);
-                flowEl.style.color = flowColors[todayEntry.flow] || '#d4ccc8';
+                flowEl.textContent = todayFlow.charAt(0).toUpperCase() + todayFlow.slice(1);
+                flowEl.style.color = flowColors[todayFlow] || '#d4ccc8';
             } else {
                 flowEl.textContent = todayEntry ? 'None' : 'Not logged';
                 flowEl.style.color = '';
@@ -7058,15 +7121,16 @@
 
             // If today has an entry, pre-fill the form with it
             if (todayEntry) {
-                currentCycleFlow = todayEntry.flow;
-                currentCycleSymptoms = [...(todayEntry.symptoms || [])];
+                const todaySymptoms = Array.isArray(todayEntry.symptoms) ? todayEntry.symptoms : [];
+                currentCycleFlow = todayFlow;
+                currentCycleSymptoms = [...todaySymptoms];
                 // Update flow buttons
                 document.querySelectorAll('.cycle-flow-btn').forEach(b => {
-                    b.classList.toggle('active', b.dataset.flow === todayEntry.flow);
+                    b.classList.toggle('active', b.dataset.flow === todayFlow);
                 });
                 // Update symptom buttons
                 document.querySelectorAll('.cycle-symptom-btn').forEach(b => {
-                    b.classList.toggle('active', (todayEntry.symptoms || []).includes(b.dataset.symptom));
+                    b.classList.toggle('active', todaySymptoms.includes(b.dataset.symptom));
                 });
                 document.getElementById('cycle-notes').value = todayEntry.notes || '';
             }
@@ -7110,6 +7174,8 @@
                     const d = new Date(e.date + 'T00:00:00');
                     const dateStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
                     const symptoms = (e.symptoms || []).join(', ');
+                    const actionId = encActionArg(e.id);
+                    const flow = normalizeCycleFlowValue(e.flow);
                     return '<div class="cycle-entry">' +
                         '<div>' +
                             '<span style="color:#d4ccc8;">' + dateStr + '</span>' +
@@ -7117,8 +7183,8 @@
                             (e.notes ? '<br><span style="color:#6b5660; font-size:11px; font-style:italic;">' + esc(e.notes) + '</span>' : '') +
                         '</div>' +
                         '<div style="display:flex; align-items:center; gap:6px;">' +
-                            '<span class="ce-flow" style="color:' + (flowColors[e.flow] || '#9a8a92') + '; border:1px solid ' + (flowColors[e.flow] || '#3d2f35') + ';">' + (e.flow || 'none') + '</span>' +
-                            '<button class="finance-btn-sm" onclick="deleteCycleEntry(\'' + e.id + '\')">x</button>' +
+                            '<span class="ce-flow" style="color:' + (flowColors[flow] || '#9a8a92') + '; border:1px solid ' + (flowColors[flow] || '#3d2f35') + ';">' + esc(flow) + '</span>' +
+                            '<button class="finance-btn-sm" onclick="deleteCycleEntry(decActionArg(\'' + actionId + '\'))">x</button>' +
                         '</div>' +
                     '</div>';
                 }).join('');
@@ -7131,7 +7197,7 @@
         // Court-documentation quality behavior logging
         // Timestamped, categorized, severity-rated
 
-        let kidLogs = loadData('kid_logs') || [];
+        let kidLogs = loadArrayData('kid_logs');
         let kidFilterCategory = 'all';
 
         // --- Open the kid behavior form ---
@@ -7190,6 +7256,7 @@
 
         // --- Build severity dots HTML ---
         function severityDots(level) {
+            level = normalizeSeverityLevel(level);
             let dots = '';
             for (let i = 1; i <= 5; i++) {
                 dots += '<span class="sev-dot ' + (i <= level ? 'filled' : '') + '"></span>';
@@ -7216,7 +7283,7 @@
                 const latest = [...kidLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
                 const t = new Date(latest.timestamp);
                 const timeStr = t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-                latestEl.innerHTML = '<span class="kid-cat-badge cat-' + esc(latest.category) + '">' + esc(latest.category) + '</span> ' + severityDots(latest.severity) + ' <span style="font-size:12px; color:#9a8a92;">' + timeStr + '</span>';
+                latestEl.innerHTML = '<span class="kid-cat-badge cat-' + safeClassToken(latest.category, 'other') + '">' + esc(latest.category) + '</span> ' + severityDots(latest.severity) + ' <span style="font-size:12px; color:#9a8a92;">' + timeStr + '</span>';
             } else {
                 latestEl.textContent = 'No entries yet';
             }
@@ -7233,10 +7300,11 @@
                     const t = new Date(e.timestamp);
                     const dateStr = t.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                     const timeStr = t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                    const actionId = encActionArg(e.id);
                     return '<div class="kid-entry">' +
                         '<div class="kid-entry-header">' +
                             '<div>' +
-                                '<span class="kid-cat-badge cat-' + esc(e.category) + '">' + esc(e.category) + '</span>' +
+                                '<span class="kid-cat-badge cat-' + safeClassToken(e.category, 'other') + '">' + esc(e.category) + '</span>' +
                                 severityDots(e.severity) +
                             '</div>' +
                             '<div>' +
@@ -7246,7 +7314,7 @@
                         '<div class="kid-entry-desc">' + esc(e.description) + '</div>' +
                         '<div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">' +
                             '<span class="kid-entry-location">' + esc(locationLabel(e.location)) + '</span>' +
-                            '<button class="finance-btn-sm" onclick="deleteKidEntry(\'' + e.id + '\')">x</button>' +
+                            '<button class="finance-btn-sm" onclick="deleteKidEntry(decActionArg(\'' + actionId + '\'))">x</button>' +
                         '</div>' +
                     '</div>';
                 }).join('');
@@ -7294,7 +7362,7 @@
         // ========================================================================
         // Floating button — one click logs current time + optional label
 
-        let timestamps = Array.isArray(loadData('timestamps')) ? loadData('timestamps') : [];
+        let timestamps = loadArrayData('timestamps');
 
         // --- Log a timestamp ---
         function logTimestamp() {
@@ -7340,6 +7408,7 @@
                 const d = new Date(t.time);
                 const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                 const timeStr = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                const actionId = encActionArg(t.id);
                 return '<div class="timestamp-entry">' +
                     '<div>' +
                         '<span class="ts-time">' + timeStr + '</span>' +
@@ -7347,7 +7416,7 @@
                     '</div>' +
                     '<div style="display:flex; align-items:center; gap:6px;">' +
                         '<span style="color:#6b5660; font-size:10px;">' + dateStr + '</span>' +
-                        '<button class="finance-btn-sm" onclick="deleteTimestamp(\'' + t.id + '\')" style="padding:1px 5px;">x</button>' +
+                        '<button class="finance-btn-sm" onclick="deleteTimestamp(decActionArg(\'' + actionId + '\'))" style="padding:1px 5px;">x</button>' +
                     '</div>' +
                 '</div>';
             }).join('');
@@ -7423,7 +7492,7 @@
         let selectedSeverity = null;
 
         // Load today's symptom log from localStorage
-        let symptomLog = loadData('symptom_log') || [];
+        let symptomLog = loadArrayData('symptom_log');
 
         function selectBodyRegion(region) {
             selectedRegion = region;
