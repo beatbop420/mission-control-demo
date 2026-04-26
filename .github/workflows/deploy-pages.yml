@@ -1,0 +1,64 @@
+name: Deploy Demo To GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Assemble site artifact
+        run: |
+          mkdir -p _site/icons
+          cp .nojekyll _site/
+          cp assistant.css _site/
+          cp assistant.js _site/
+          cp demo-interactions.css _site/
+          cp demo-interactions.js _site/
+          cp demo-isolate.js _site/
+          cp demo-seed.js _site/
+          cp index.html _site/
+          cp login.html _site/
+          cp manifest.json _site/
+          cp robots.txt _site/
+          cp security-pod.js _site/
+          cp supabase-config.js _site/
+          cp sw.js _site/
+          cp icons/icon-192.png _site/icons/
+          cp icons/icon-512.png _site/icons/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
