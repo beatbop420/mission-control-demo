@@ -30,19 +30,11 @@
         },
         {
             tab: 'money',
-            finance: 'brain',
-            target: '#mc-greeting',
-            title: 'The Morning Briefing',
-            text: 'Instead of a wall of numbers, you get a plain-language summary of where you stand — written like a supportive note, not a bank statement.',
-            extra: 'Logic: Raw numbers trigger shame and avoidance. Miss Claudette reframes the same data as a calm, actionable briefing so the user can actually open the app on a hard day.'
-        },
-        {
-            tab: 'money',
-            finance: 'stove',
-            target: '#fin-panel-stove',
-            title: 'The Anxiety Reset',
-            text: 'A "Check the Stove" view for when financial anxiety spikes.',
-            extra: 'Logic: When in a spiral, the user only needs 5 numbers to prove they are safe. This screen is designed to be read in under 10 seconds to stop a panic attack.'
+            finance: 'overview',
+            target: '#overview-summary-grid',
+            title: 'Money Overview',
+            text: 'Accounts, income, and bills live in one plain tab instead of six different money screens.',
+            extra: 'Logic: The point is fast orientation. Conventional finance basics stay together so the user does not have to remember whether a fact belongs in Accounts, Income, or Bills before they can understand their money.'
         },
         {
             tab: 'money',
@@ -59,6 +51,14 @@
             title: 'Paycheck Splitting',
             text: 'Income is automatically divided into 4 buckets the moment it lands: Fixed bills, Safety net, Life spending, and Dopamine.',
             extra: 'Logic: The "Dopamine" bucket is intentional — ADHD brains run on dopamine-driven reward. Budgeting for fun isn\'t a luxury, it\'s maintenance. The priority sequence means decisions are already made before payday hits.'
+        },
+        {
+            tab: 'money',
+            finance: 'debt',
+            target: '#fin-panel-debt',
+            title: 'Debt Visibility',
+            text: 'Debt gets its own dedicated view so balances, minimums, and payoff pressure are visible without muddying the rest of the budget.',
+            extra: 'Logic: Debt is important enough to deserve focus, but not so central that it should dominate every money screen. Separating it lowers overwhelm while keeping the numbers honest.'
         },
         {
             tab: 'body',
@@ -481,12 +481,12 @@
         rerenderFinance();
         switchMainTab('money');
         window.setTimeout(function () {
-            switchFinanceTab('bills');
+            switchFinanceTab('overview');
             window.setTimeout(function () {
-                pulse('#fin-panel-bills');
+                pulse('#overview-bills-section');
             }, 80);
         }, 100);
-        notify('Chaos mode: surprise bill added — see your Bills tab');
+        notify('Chaos mode: surprise bill added — see Overview');
     }
 
     function applyBodyMode(mode) {
@@ -811,7 +811,7 @@
         },
         money: {
             title: 'Spendability Math',
-            text: 'Subtracts every upcoming bill from your bank balance automatically. The number you see is what is actually safe to spend right now.'
+            text: 'Keeps the conventional money basics in one Overview tab, while Buckets shows what is actually safe to spend right now.'
         },
         life: {
             title: 'Daily Life Hub',

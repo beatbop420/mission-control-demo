@@ -2978,66 +2978,82 @@
                     </div>
                 </div>
 
-                <!-- Tab buttons — Advisor is default, the "what do I do" view -->
+                <!-- Tab buttons — conventional first, special second -->
                 <div class="finance-tabs">
-                    <button class="finance-tab active" onclick="showFinanceTab('brain', this)" style="background:#d4849a; border-color:#d4849a; color:#fff; font-weight:600;">🧠 Brain</button>
-                    <button class="finance-tab" onclick="showFinanceTab('advisor', this)">Advisor</button>
-                    <button class="finance-tab" onclick="showFinanceTab('stove', this)">Stove</button>
+                    <button class="finance-tab active" onclick="showFinanceTab('overview', this)" style="background:#d4849a; border-color:#d4849a; color:#fff; font-weight:600;">Overview</button>
                     <button class="finance-tab" onclick="showFinanceTab('timeline', this)">Timeline</button>
-                    <button class="finance-tab" onclick="showFinanceTab('ledger', this)">Ledger</button>
-                    <button class="finance-tab" onclick="showFinanceTab('bills', this)">Bills</button>
-                    <button class="finance-tab" onclick="showFinanceTab('accounts', this)">Accounts</button>
                     <button class="finance-tab" onclick="showFinanceTab('buckets', this)">Buckets</button>
                     <button class="finance-tab" onclick="showFinanceTab('debt', this)">Debt</button>
-                    <button class="finance-tab" onclick="showFinanceTab('income', this)">Income</button>
-                    <button class="finance-tab" onclick="showFinanceTab('log', this)">Log</button>
-                    <button class="finance-tab" onclick="showFinanceTab('budget', this)">Budget</button>
-                    <button class="finance-tab" onclick="showFinanceTab('spending', this)">Spending</button>
                 </div>
 
-                <!-- ===== FINANCE BRAIN — Miss Claudette morning briefing ===== -->
-                <div class="finance-panel active" id="fin-panel-brain">
-
-                    <!-- Checking + Savings balances -->
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
-                        <div style="background:#1a1216; border-radius:10px; padding:14px; text-align:center;">
+                <!-- ===== OVERVIEW — merged accounts, income, and bills ===== -->
+                <div class="finance-panel active" id="fin-panel-overview">
+                    <div id="overview-summary-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+                        <div id="overview-checking-card" style="background:#1a1216; border-radius:10px; padding:14px; text-align:center;">
                             <div style="font-size:10px; color:#9a8a92; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Checking</div>
-                            <div id="mc-checking" style="font-size:22px; font-weight:700; color:#f0eae8;">$—</div>
+                            <div id="overview-checking" style="font-size:22px; font-weight:700; color:#f0eae8;">$—</div>
                         </div>
-                        <div style="background:#1a1216; border-radius:10px; padding:14px; text-align:center;">
+                        <div id="overview-savings-card" style="background:#1a1216; border-radius:10px; padding:14px; text-align:center;">
                             <div style="font-size:10px; color:#9a8a92; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Savings</div>
-                            <div id="mc-savings" style="font-size:22px; font-weight:700; color:#b48db5;">$—</div>
+                            <div id="overview-savings" style="font-size:22px; font-weight:700; color:#b48db5;">$—</div>
+                        </div>
+                        <div id="overview-spendable-card" style="background:#1a1216; border-radius:10px; padding:14px; text-align:center; border-left:3px solid #e8b84b;">
+                            <div style="font-size:10px; color:#9a8a92; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Safe To Spend</div>
+                            <div id="overview-spendable" style="font-size:22px; font-weight:700; color:#e8b84b;">$—</div>
+                            <div id="overview-spendable-note" style="font-size:10px; color:#6b5660; margin-top:4px;">Life + Dopamine buckets</div>
+                        </div>
+                        <div id="overview-payday-card" style="background:#1a1216; border-radius:10px; padding:14px; text-align:center;">
+                            <div style="font-size:10px; color:#9a8a92; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Next Payday</div>
+                            <div id="overview-payday" style="font-size:20px; font-weight:700; color:#d4ccc8;">—</div>
+                            <div id="overview-payday-note" style="font-size:10px; color:#6b5660; margin-top:4px;">Set in Buckets</div>
                         </div>
                     </div>
 
-                    <!-- Payday countdown -->
-                    <div style="background:#1a1216; border-radius:10px; padding:12px 16px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:13px; color:#9a8a92;">next payday</span>
-                        <span id="mc-payday-text" style="font-size:15px; font-weight:600; color:#d4ccc8;">—</span>
+                    <div id="overview-status" style="padding:12px 14px; border-left:3px solid #b48db5; border-radius:8px; background:rgba(78,204,163,0.08); font-size:13px; color:#d4ccc8; margin-bottom:12px;">
+                        Add your checking balance, income, and bills to see the whole money picture.
                     </div>
 
-                    <!-- This week's bills -->
-                    <div style="margin-bottom:16px;">
-                        <div style="font-size:10px; color:#9a8a92; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">this week</div>
-                        <div id="mc-bills-list"><p style="color:#6b5660; font-size:13px;">loading...</p></div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+                        <button class="finance-add-btn" onclick="openPaycheckForm()" style="flex:1; min-width:140px;">💰 Log Paycheck</button>
+                        <button class="finance-add-btn" onclick="refreshBankData()" style="flex:1; min-width:140px;">↻ Refresh Bank</button>
                     </div>
 
-                    <!-- Allowances -->
-                    <div style="margin-bottom:14px;">
-                        <div style="font-size:10px; color:#9a8a92; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">your money</div>
-                        <div id="mc-allowances"></div>
+                    <div style="display:grid; gap:16px;">
+                        <div id="overview-accounts-section" style="background:#1a1216; border-radius:10px; padding:14px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:10px;">
+                                <div>
+                                    <div style="font-size:13px; font-weight:600; color:#d4ccc8;">Accounts</div>
+                                    <div style="font-size:11px; color:#6b5660;">Where your money lives right now.</div>
+                                </div>
+                                <button class="finance-btn-sm" onclick="openFinanceForm('account')">+ Add Account</button>
+                            </div>
+                            <div id="fin-accounts-list"></div>
+                        </div>
+
+                        <div id="overview-income-section" style="background:#1a1216; border-radius:10px; padding:14px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:10px;">
+                                <div>
+                                    <div style="font-size:13px; font-weight:600; color:#d4ccc8;">Income</div>
+                                    <div style="font-size:11px; color:#6b5660;">What comes in and when to expect it.</div>
+                                </div>
+                                <button class="finance-btn-sm" onclick="openFinanceForm('income')">+ Add Income</button>
+                            </div>
+                            <div id="fin-income-list"></div>
+                        </div>
+
+                        <div id="overview-bills-section" style="background:#1a1216; border-radius:10px; padding:14px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:10px;">
+                                <div>
+                                    <div style="font-size:13px; font-weight:600; color:#d4ccc8;">Bills</div>
+                                    <div id="overview-bills-note" style="font-size:11px; color:#6b5660;">What is due and what still needs attention.</div>
+                                </div>
+                                <button class="finance-btn-sm" onclick="openFinanceForm('bill')">+ Add Bill</button>
+                            </div>
+                            <div id="fin-bills-list"></div>
+                        </div>
                     </div>
 
-                    <!-- Sync note + manual pending ACH -->
-                    <div style="text-align:center; margin-top:8px;">
-                        <span id="mc-sync-note" style="font-size:11px; color:#6b5660;"></span>
-                        <span style="font-size:11px; color:#3d2f35;"> · </span>
-                        <button class="inline-refresh-btn" onclick="refreshBankData()" style="padding:3px 9px;">Refresh Bank</button>
-                        <span style="font-size:11px; color:#3d2f35;"> · </span>
-                        <span id="brain-manual-pending-val" style="font-size:11px; color:#6b5660; cursor:pointer; text-decoration:underline dotted;" onclick="setManualPending()">pending ACH: tap to set</span>
-                    </div>
-
-                    <!-- Hidden compat elements — paycheck confirm reads these -->
+                    <!-- Hidden compat elements — paycheck confirm still reads these -->
                     <div id="brain-sts" style="display:none;"></div>
                     <div id="brain-sts-sub" style="display:none;"></div>
                     <div id="brain-bills-list-hidden" style="display:none;"></div>
@@ -3045,68 +3061,9 @@
                     <div id="brain-alert" style="display:none;"></div>
                 </div>
 
-                <!-- ===== SMART ADVISOR — "What do I do this week?" ===== -->
-                <div class="finance-panel" id="fin-panel-advisor">
-                    <div id="fin-advisor-content">
-                        <p style="color:#6b5660; font-size:13px; padding:10px 0;">Loading advisor...</p>
-                    </div>
-                </div>
-
                 <!-- ===== ROLLING TIMELINE — 4-week moving view ===== -->
                 <div class="finance-panel" id="fin-panel-timeline">
                     <div class="timeline-wrap" id="fin-timeline-grid"></div>
-                </div>
-
-                <!-- ===== ANNUAL LEDGER — Month-by-month overview ===== -->
-                <div class="finance-panel" id="fin-panel-ledger">
-                    <div class="ledger-wrap" id="fin-ledger-table"></div>
-                </div>
-
-                <!-- ===== CHECK THE STOVE — The anxiety reset page ===== -->
-                <!-- Single screen. No scrolling. Just the numbers you need to stop worrying. -->
-                <div class="finance-panel" id="fin-panel-stove">
-                    <div style="text-align:center; padding:8px 0 16px;">
-                        <p style="font-size:13px; color:#9a8a92; font-style:italic;">Everything is fine. Here's the proof.</p>
-                    </div>
-
-                    <!-- The big 5 numbers — the only things that matter right now -->
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
-                        <div style="background:#1a1216; border-radius:10px; padding:16px; text-align:center; border-left:3px solid #b48db5;">
-                            <div style="font-size:11px; color:#9a8a92; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Safe to Spend (Life)</div>
-                            <div style="font-size:28px; font-weight:700;" id="stove-life">$0</div>
-                        </div>
-                        <div style="background:#1a1216; border-radius:10px; padding:16px; text-align:center; border-left:3px solid #e8b84b;">
-                            <div style="font-size:11px; color:#9a8a92; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Dopamine Left</div>
-                            <div style="font-size:28px; font-weight:700;" id="stove-dopamine">$0</div>
-                        </div>
-                    </div>
-
-                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px;">
-                        <div style="background:#1a1216; border-radius:10px; padding:14px; text-align:center;">
-                            <div style="font-size:10px; color:#9a8a92; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Bills Covered Through</div>
-                            <div style="font-size:18px; font-weight:600; color:#d4ccc8;" id="stove-bills-covered">—</div>
-                        </div>
-                        <div style="background:#1a1216; border-radius:10px; padding:14px; text-align:center;">
-                            <div style="font-size:10px; color:#9a8a92; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Safety Net</div>
-                            <div style="font-size:18px; font-weight:600; color:#d4ccc8;" id="stove-safety">$0</div>
-                        </div>
-                        <div style="background:#1a1216; border-radius:10px; padding:14px; text-align:center;">
-                            <div style="font-size:10px; color:#9a8a92; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Next Payday In</div>
-                            <div style="font-size:18px; font-weight:600; color:#d4ccc8;" id="stove-payday">— days</div>
-                        </div>
-                    </div>
-
-                    <!-- Status line — one sentence summary -->
-                    <div id="stove-status" style="text-align:center; padding:12px; background:rgba(78,204,163,0.08); border-left:3px solid #b48db5; border-radius:6px; font-size:14px; color:#d4ccc8;">
-                        Add your accounts to see status.
-                    </div>
-
-                    <!-- Past due warning — only shows if something is past due -->
-                    <div id="stove-past-due" style="display:none; margin-top:10px; padding:12px; background:rgba(233,69,96,0.08); border-left:3px solid #d4849a; border-radius:6px; font-size:13px; color:#d4849a;">
-                    </div>
-
-                    <!-- Quick action: log paycheck -->
-                    <button class="finance-add-btn" onclick="openPaycheckForm()" style="margin-top:14px;">💰 Log Paycheck</button>
                 </div>
 
                 <!-- ===== BUCKETS — The Four Bucket System ===== -->
@@ -3183,30 +3140,6 @@
                     </div>
                 </div>
 
-                <!-- ===== ACCOUNTS PANEL ===== -->
-                <div class="finance-panel" id="fin-panel-accounts">
-                    <div id="fin-accounts-list"></div>
-                    <button class="finance-add-btn" onclick="openFinanceForm('account')">+ Add Account</button>
-                </div>
-
-                <!-- ===== BILLS PANEL ===== -->
-                <div class="finance-panel" id="fin-panel-bills">
-                    <div id="fin-bills-list"></div>
-                    <button class="finance-add-btn" onclick="openFinanceForm('bill')">+ Add Bill</button>
-                </div>
-
-                <!-- ===== INCOME PANEL ===== -->
-                <div class="finance-panel" id="fin-panel-income">
-                    <div id="fin-income-list"></div>
-                    <button class="finance-add-btn" onclick="openFinanceForm('income')">+ Add Income</button>
-                </div>
-
-                <!-- ===== TRANSACTION LOG PANEL ===== -->
-                <div class="finance-panel" id="fin-panel-log">
-                    <div id="fin-log-list"></div>
-                    <button class="finance-add-btn" onclick="openFinanceForm('transaction')">+ Add Transaction</button>
-                </div>
-
                 <!-- ===== DEBT PANEL ===== -->
                 <div class="finance-panel" id="fin-panel-debt">
                     <!-- Debt summary boxes — total owed, monthly interest burn, etc -->
@@ -3246,70 +3179,6 @@
                     <!-- Individual debt cards -->
                     <div id="fin-debt-list"></div>
                     <button class="finance-add-btn" onclick="openFinanceForm('debt')">+ Add Debt</button>
-                </div>
-
-                <!-- ===== BUDGET OVERVIEW PANEL ===== -->
-                <div class="finance-panel" id="fin-panel-budget">
-                    <!-- The money waterfall — shows how income flows through each bucket -->
-                    <div id="budget-waterfall"></div>
-
-                    <!-- Emergency fund tracker -->
-                    <div style="margin-top: 16px; padding: 14px; background: #1a1216; border-radius: 8px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                            <span style="font-size:14px; font-weight:500; color:#d4ccc8;">🛡 Emergency Fund</span>
-                            <button class="finance-btn-sm" onclick="openFinanceForm('emergency')">set goal</button>
-                        </div>
-                        <!-- Progress bar -->
-                        <div style="width:100%; height:20px; background:#3d2f35; border-radius:10px; overflow:hidden; margin-bottom:6px;">
-                            <div id="ef-progress-bar" style="height:100%; background: linear-gradient(90deg, #d4849a, #e8b84b, #b48db5); border-radius:10px; width:0%; transition: width 0.5s;"></div>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; font-size:12px; color:#9a8a92;">
-                            <span id="ef-current">$0</span>
-                            <span id="ef-percent">0%</span>
-                            <span id="ef-goal">Goal: $0</span>
-                        </div>
-                        <p id="ef-months-to-goal" style="font-size:12px; color:#9a8a92; margin-top:6px;"></p>
-                    </div>
-
-                    <!-- Smart suggestion box -->
-                    <div class="alert-row level-green" id="budget-suggestion" style="margin-top:12px;">
-                        <span class="alert-icon">💡</span>
-                        <div class="alert-body">
-                            <span class="alert-text" id="budget-suggestion-text">Add your accounts, bills, and debts to get personalized budget suggestions.</span>
-                            <span class="alert-ref" id="budget-suggestion-detail"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ===== SPENDING TRACKER PANEL ===== -->
-                <div class="finance-panel" id="fin-panel-spending">
-                    <p style="font-size:13px; color:#9a8a92; margin-bottom:12px;">Track variable spending — groceries, gas, pet supplies, etc. Not bills, just life money going out.</p>
-
-                    <!-- Quick-add row -->
-                    <div class="spending-quick-add">
-                        <select id="sp-category">
-                            <option value="Groceries">🛒 Groceries</option>
-                            <option value="Gas">⛽ Gas</option>
-                            <option value="Pet Supplies">🐾 Pet Supplies</option>
-                            <option value="Household">🏠 Household</option>
-                            <option value="Medical Copay">💊 Medical Copay</option>
-                            <option value="Dining/Takeout">🍕 Dining / Takeout</option>
-                            <option value="Personal Care">💅 Personal Care</option>
-                            <option value="Kids">🧒 Kids</option>
-                            <option value="Other">📦 Other</option>
-                        </select>
-                        <input type="number" id="sp-amount" placeholder="$0.00" step="0.01" min="0">
-                        <input type="text" id="sp-note" placeholder="Note (optional)">
-                        <button class="finance-add-btn" style="margin:0; padding:8px 16px; white-space:nowrap;" onclick="addSpendingEntry()">+ Add</button>
-                    </div>
-
-                    <!-- This month summary -->
-                    <div id="spending-month-label" style="font-size:11px; color:#9a8a92; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px;"></div>
-                    <div id="spending-cat-grid" class="spending-cat-grid"></div>
-
-                    <!-- Recent entries -->
-                    <div style="font-size:11px; color:#9a8a92; letter-spacing:1px; text-transform:uppercase; margin:4px 0 8px;">Recent</div>
-                    <div id="spending-entries-list"></div>
                 </div>
 
             </div>
@@ -4840,33 +4709,29 @@
             // Deactivate all tab buttons
             document.querySelectorAll('.finance-tab').forEach(t => t.classList.remove('active'));
             // Show the selected panel and activate its button
-            document.getElementById('fin-panel-' + tab).classList.add('active');
-            btn.classList.add('active');
+            const panel = document.getElementById('fin-panel-' + tab);
+            if (panel) panel.classList.add('active');
+            if (btn) btn.classList.add('active');
         }
 
         // --- RENDER ALL FINANCE DATA ---
         function renderFinance() {
+            renderOverview();
             renderAccounts();
             renderBills();
             renderTimeline();
-            renderLedger();
-            renderBrain();
-            renderAdvisor();
             renderIncome();
-            renderTransactions();
             renderDebts();
-            renderBudgetOverview();
-            renderSpending();
             renderBankSnapshot();
             syncBucketsToAccounts();
             updateFinanceSummary();
-            renderStove();
             renderBuckets();
         }
 
         // --- ACCOUNTS ---
         function renderAccounts() {
             const list = document.getElementById('fin-accounts-list');
+            if (!list) return;
             if (finAccounts.length === 0) {
                 list.innerHTML = '<p style="color:#6b5660; font-size:13px; padding:10px 0;">No accounts yet. Add your checking, savings, cash, etc.</p>';
                 return;
@@ -4891,6 +4756,7 @@
         // --- BILLS ---
         function renderBills() {
             const list = document.getElementById('fin-bills-list');
+            if (!list) return;
             if (finBills.length === 0) {
                 list.innerHTML = '<p style="color:#6b5660; font-size:13px; padding:10px 0;">No bills yet. Add rent, electric, phone, etc.</p>';
                 return;
@@ -5399,6 +5265,104 @@
             });
         }
 
+        // --- OVERVIEW — merged money snapshot + setup lists ---
+        function renderOverview() {
+            const checking = getCheckingBalance();
+            const savings = getDisplayBalance(getAccountByType('Savings'));
+            const spendable = (buckets.life.balance || 0) + (buckets.dopamine.balance || 0);
+            const fixedNeeded = calcFixedNeeded();
+            const overdueBills = getOverdueBills();
+            const upcomingBills = getUpcomingBills(14);
+            const nextPayday = getNextPayday();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const daysToPayday = nextPayday ? Math.ceil((nextPayday - today) / (1000 * 60 * 60 * 24)) : null;
+            const billsNote = document.getElementById('overview-bills-note');
+
+            saveData('safe_to_spend', spendable);
+
+            const checkingEl = document.getElementById('overview-checking');
+            const savingsEl = document.getElementById('overview-savings');
+            const spendableEl = document.getElementById('overview-spendable');
+            const spendableNoteEl = document.getElementById('overview-spendable-note');
+            const paydayEl = document.getElementById('overview-payday');
+            const paydayNoteEl = document.getElementById('overview-payday-note');
+            const statusEl = document.getElementById('overview-status');
+
+            if (checkingEl) checkingEl.textContent = fmt$(checking);
+            if (savingsEl) savingsEl.textContent = fmt$(savings);
+
+            if (spendableEl) {
+                spendableEl.textContent = fmt$(spendable);
+                spendableEl.style.color = spendable < 0 ? '#d4849a' : spendable < 100 ? '#e8b84b' : '#e8b84b';
+            }
+            if (spendableNoteEl) {
+                spendableNoteEl.textContent = 'Life ' + fmt$(buckets.life.balance || 0) + ' + Dopamine ' + fmt$(buckets.dopamine.balance || 0);
+            }
+
+            if (paydayEl) {
+                if (!nextPayday) {
+                    paydayEl.textContent = 'Not set';
+                    paydayEl.style.color = '#6b5660';
+                } else if (daysToPayday <= 0) {
+                    paydayEl.textContent = 'Today';
+                    paydayEl.style.color = '#6bbf7b';
+                } else if (daysToPayday === 1) {
+                    paydayEl.textContent = 'Tomorrow';
+                    paydayEl.style.color = '#e8b84b';
+                } else {
+                    paydayEl.textContent = daysToPayday + ' days';
+                    paydayEl.style.color = '#d4ccc8';
+                }
+            }
+            if (paydayNoteEl) {
+                paydayNoteEl.textContent = nextPayday
+                    ? nextPayday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                    : 'Set in Buckets';
+            }
+
+            if (billsNote) {
+                const dueCount = finBills.filter(b => b.status === 'unpaid').length;
+                const pendingCount = finBills.filter(b => b.status === 'pending').length;
+                let note = dueCount + ' unpaid bill' + (dueCount === 1 ? '' : 's');
+                if (pendingCount > 0) note += ' · ' + pendingCount + ' pending';
+                billsNote.textContent = note;
+            }
+
+            if (statusEl) {
+                if (overdueBills.length > 0) {
+                    const overdueTotal = overdueBills.reduce((sum, b) => sum + (b.amount || 0), 0);
+                    statusEl.innerHTML = 'Overdue bills need attention: <strong>' + fmt$(overdueTotal) + '</strong> across ' + overdueBills.length + ' item' + (overdueBills.length === 1 ? '' : 's') + '.';
+                    statusEl.style.borderLeftColor = '#d4849a';
+                    statusEl.style.background = 'rgba(233,69,96,0.08)';
+                } else if (buckets.fixed.balance < fixedNeeded) {
+                    const short = fixedNeeded - buckets.fixed.balance;
+                    statusEl.innerHTML = 'Fixed is short <strong>' + fmt$(short) + '</strong> before the next pay cycle. Buckets needs another paycheck or a transfer.';
+                    statusEl.style.borderLeftColor = '#e8b84b';
+                    statusEl.style.background = 'rgba(255,204,0,0.06)';
+                } else if (spendable <= 0) {
+                    statusEl.textContent = 'Bills are covered, but your spendable buckets are empty right now. Hold steady until payday.';
+                    statusEl.style.borderLeftColor = '#d4849a';
+                    statusEl.style.background = 'rgba(233,69,96,0.08)';
+                } else {
+                    const upcomingTotal = upcomingBills.reduce((sum, b) => sum + (b.amount || 0), 0);
+                    statusEl.textContent = 'Bills are staged, spendable money is in Buckets, and the next 14 days show ' + fmt$(upcomingTotal) + ' in upcoming bills.';
+                    statusEl.style.borderLeftColor = '#b48db5';
+                    statusEl.style.background = 'rgba(78,204,163,0.08)';
+                }
+            }
+
+            const compatSts = document.getElementById('brain-sts');
+            const compatSub = document.getElementById('brain-sts-sub');
+            if (compatSts) {
+                compatSts.textContent = fmt$(spendable);
+                compatSts.className = 'brain-sts-number ' + (spendable >= 200 ? 'good' : spendable >= 0 ? 'tight' : 'negative');
+            }
+            if (compatSub) {
+                compatSub.textContent = 'Life + Dopamine buckets = what is actually safe to spend.';
+            }
+        }
+
         // --- SMART ADVISOR (the "what do I do this week" brain) ---
         function renderAdvisor() {
             const container = document.getElementById('fin-advisor-content');
@@ -5564,6 +5528,10 @@
 
         // --- FINANCE BRAIN — Miss Claudette morning briefing ---
         function renderBrain() {
+            if (!document.getElementById('fin-panel-brain')) {
+                renderOverview();
+                return;
+            }
             const balance = getCheckingBalance();
             const savingsAcct = finAccounts.find(a => a.type === 'Savings' || (a.name && a.name.toLowerCase().includes('saving')));
             const savingsBalance = savingsAcct ? (savingsAcct.balance || 0) : 0;
@@ -5787,7 +5755,7 @@
             const val = parseFloat(input);
             if (isNaN(val) || val < 0) { alert('Enter a dollar amount. Enter 0 if nothing pending.'); return; }
             saveData('manual_pending', val.toString());
-            renderBrain();
+            renderOverview();
         }
 
         // --- PAYCHECK CONFIRM — show the "every dollar has a job" moment ---
@@ -5858,12 +5826,13 @@
             if (isNaN(newBalance) || newBalance < 0) return;
             fund.balance = newBalance;
             saveData('sinking_funds', sinkingFunds);
-            renderBrain();
+            renderOverview();
         }
 
         // --- INCOME ---
         function renderIncome() {
             const list = document.getElementById('fin-income-list');
+            if (!list) return;
             if (finIncome.length === 0) {
                 list.innerHTML = '<p style="color:#6b5660; font-size:13px; padding:10px 0;">No income sources yet. Add job, side gigs, etc.</p>';
                 return;
@@ -5892,6 +5861,7 @@
         // --- TRANSACTIONS ---
         function renderTransactions() {
             const list = document.getElementById('fin-log-list');
+            if (!list) return;
             if (finTransactions.length === 0) {
                 list.innerHTML = '<p style="color:#6b5660; font-size:13px; padding:10px 0;">No transactions logged yet.</p>';
                 return;
@@ -7839,9 +7809,10 @@
 
         // --- Render the Check-the-Stove page ---
         function renderStove() {
+            const lifeEl = document.getElementById('stove-life');
+            if (!lifeEl) return;
             normalizeBillStatuses();
             // Life bucket balance
-            const lifeEl = document.getElementById('stove-life');
             lifeEl.textContent = fmt$(buckets.life.balance);
             lifeEl.style.color = buckets.life.balance <= 0 ? '#d4849a' : buckets.life.balance < 100 ? '#e8b84b' : '#b48db5';
 
@@ -8272,9 +8243,6 @@
                 document.getElementById('fin-form-overlay').classList.remove('show');
                 currentFormType = null;
                 renderFinance();
-                renderStove();
-                renderBuckets();
-                renderBrain(); // update brain BEFORE reading its values for confirm screen
                 showPaycheckConfirm(amount, split);
                 return;
 
@@ -8294,8 +8262,7 @@
                 saveBuckets();
                 document.getElementById('fin-form-overlay').classList.remove('show');
                 currentFormType = null;
-                renderBuckets();
-                renderStove();
+                renderFinance();
                 showToast('Settings saved');
                 return;
 
@@ -8324,8 +8291,6 @@
                 document.getElementById('fin-form-overlay').classList.remove('show');
                 currentFormType = null;
                 renderFinance();
-                renderStove();
-                renderBuckets();
 
                 // Warning toasts
                 if (buckets[bucket].balance <= 0) {
@@ -8351,17 +8316,13 @@
 
                 document.getElementById('fin-form-overlay').classList.remove('show');
                 currentFormType = null;
-                renderBuckets();
-                renderStove();
+                renderFinance();
                 showToast('Moved $' + amount.toFixed(2) + ' from ' + from + ' to ' + to);
                 return;
             }
 
             // If none of the bucket types matched, call the original save function
             originalSaveFinanceForm();
-            // After any finance save, also update stove and buckets
-            renderStove();
-            renderBuckets();
         };
 
         // --- Override summary to use bucket-aware + account-aware numbers ---
