@@ -847,20 +847,8 @@
         if (wand) {
             wand.classList.add('demo-dog-glow');
             wand.style.cursor = 'pointer';
-            var wandSayings = [
-                'once upon a time... ✨',
-                'happily ever after 🦄',
-                'a spell is brewing 🌙',
-                'enchantment abound 🪄',
-                'wishes whispered to stars 💫',
-                'magic stirs in the air ✨',
-                'the tale unfolds 📖',
-                'dreams take flight 🧚',
-                'wonders beyond measure 🌟',
-                'a moment of pure magic ⭐'
-            ];
             wand.onclick = function () {
-                castMagicalIncantation();
+                castMagicalIncantation(wand);
             };
         }
         
@@ -873,31 +861,48 @@
         }
     }
 
-    function castMagicalIncantation() {
-        var text = document.createElement('div');
-        text.className = 'bippity-boppity-text fade-in';
-        // text.textContent = '✨ Bippity Boppity Boo ✨';  // Removed on 2026-04-24
-        text.style.position = 'fixed';
-        text.style.zIndex = '999999';
-        text.style.pointerEvents = 'none';
-        text.style.left = '50%';
-        text.style.top = '30%';
-        document.body.appendChild(text);
+    var wandSpellFadeTimer = null;
+    var wandSpellCleanupTimer = null;
 
-        // Start confetti at 2.5 seconds
-        window.setTimeout(function () {
-            if (typeof bippityBoppityBoo === 'function') {
+    function castMagicalIncantation(sourceEl) {
+        var existing = document.getElementById('wand-spell-flash');
+        if (existing) existing.remove();
+        if (wandSpellFadeTimer) window.clearTimeout(wandSpellFadeTimer);
+        if (wandSpellCleanupTimer) window.clearTimeout(wandSpellCleanupTimer);
+
+        if (sourceEl) {
+            pulse(sourceEl);
+            sparkleFrom(sourceEl, 18);
+        }
+
+        var flash = document.createElement('div');
+        flash.id = 'wand-spell-flash';
+        flash.className = 'bippity-boppity-text fade-in';
+        flash.textContent = '✨';
+        flash.style.position = 'fixed';
+        flash.style.zIndex = '999999';
+        flash.style.pointerEvents = 'none';
+        flash.style.left = '50%';
+        flash.style.top = '30%';
+        flash.style.transform = 'translate(-50%, -50%)';
+        document.body.appendChild(flash);
+
+        if (typeof bippityBoppityBoo === 'function') {
+            window.requestAnimationFrame(function () {
                 bippityBoppityBoo();
-            }
-            // Fade out the text after confetti starts
-            text.classList.remove('fade-in');
-            text.classList.add('fade-out');
-        }, 2500);
+            });
+        }
 
-        // Remove text after total time
-        window.setTimeout(function () {
-            text.remove();
-        }, 5500);
+        wandSpellFadeTimer = window.setTimeout(function () {
+            flash.classList.remove('fade-in');
+            flash.classList.add('fade-out');
+        }, 450);
+
+        wandSpellCleanupTimer = window.setTimeout(function () {
+            flash.remove();
+            wandSpellFadeTimer = null;
+            wandSpellCleanupTimer = null;
+        }, 1400);
     }
 
     function showWandMenu() {
